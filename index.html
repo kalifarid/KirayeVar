@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="az" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIrayəVar — İcarə Platforması</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide İkonlar -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="router('home')">
+                <div class="bg-brand-600 text-white p-2 rounded-xl font-bold text-xl shadow-lg shadow-brand-500/30">KV</div>
+                <span class="text-xl font-extrabold tracking-tight">KIrayə<span class="text-brand-600">Var</span></span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-amber-400"></i>
+                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-gray-600"></i>
+                </button>
+
+                <div id="auth-buttons" class="flex items-center gap-2">
+                    <button onclick="openModal('loginModal')" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-brand-600 transition">Giriş</button>
+                    <button onclick="openModal('registerModal')" class="px-4 py-2 text-sm font-semibold bg-brand-600 text-white rounded-xl shadow-lg shadow-brand-600/30 hover:bg-brand-700 transition">Qeydiyyat</button>
+                </div>
+
+                <div id="user-menu" class="hidden flex items-center gap-3">
+                    <button onclick="checkAuthAndOpenCreate()" class="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-600/30 hover:bg-emerald-700 transition">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Elan Yerləşdir
+                    </button>
+                    <button onclick="router('profile')" class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 transition">
+                        <i data-lucide="user" class="w-4 h-4 text-brand-600"></i>
+                        <span id="nav-username" class="text-sm font-medium">İstifadəçi</span>
+                    </button>
+                    <button onclick="logout()" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition" title="Çıxış">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- HOME VIEW -->
+        <div id="view-home" class="space-y-8">
+            <div class="bg-gradient-to-r from-brand-600 to-indigo-700 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-brand-600/20">
+                <h1 class="text-3xl sm:text-4xl font-extrabold mb-3">İstədiyiniz hər şeyi dərhal icarəyə götürün</h1>
+                <p class="text-brand-50 mb-6 text-sm sm:text-base">Evlər, maşınlar, avadanlıqlar və daha çoxu sərfəli şərtlərlə bir toxunuşla yanınızda.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-lg">
+                    <input type="text" id="filter-search" placeholder="Açar sözə görə axtar..." class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <select id="filter-category" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                        <option value="">Bütün Kateqoriyalar</option>
+                        <option value="Evlər">Evlər</option>
+                        <option value="Maşınlar">Maşınlar</option>
+                        <option value="Avadanlıqlar">Avadanlıqlar</option>
+                        <option value="Digər">Digər</option>
+                    </select>
+                    <select id="filter-city" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                        <option value="">Bütün Şəhərlər</option>
+                        <option value="Bakı">Bakı</option>
+                        <option value="Gəncə">Gəncə</option>
+                        <option value="Sumqayıt">Sumqayıt</option>
+                        <option value="Şəmkir">Şəmkir</option>
+                        <option value="Lənkəran">Lənkəran</option>
+                    </select>
+                    <input type="number" id="filter-max-price" placeholder="Maks. Qiymət (AZN)" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <button onclick="loadListings()" class="bg-brand-600 text-white font-semibold py-2.5 rounded-xl hover:bg-brand-700 transition flex items-center justify-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4"></i> Axtar
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold">Son Elanlar</h2>
+                    <span id="listing-count" class="text-sm text-gray-500 dark:text-gray-400">Yüklənir...</span>
+                </div>
+                <div id="listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dinamik doldurulacaq -->
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE VIEW -->
+        <div id="view-profile" class="hidden space-y-6">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-brand-500/10 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-2xl" id="profile-avatar-letter">F</div>
+                    <div>
+                        <h2 class="text-xl font-bold" id="profile-username-display">İstifadəçi Adı</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" id="profile-phone-display">Yüklənir...</p>
+                    </div>
+                </div>
+                <button onclick="checkAuthAndOpenCreate()" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl shadow-md hover:bg-emerald-700 transition flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Yeni Elan Yerləşdir
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold">Mənim Elanlarım</h3>
+                <div id="my-listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- İstifadəçinin elanları -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER & REKLAMLAR -->
+    <footer class="mt-auto bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 pt-6 pb-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl text-center text-xs text-gray-400 border border-dashed border-gray-300 dark:border-gray-600">Reklam Məkanı (728x90)</div>
+                <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl text-center text-xs text-gray-400 border border-dashed border-gray-300 dark:border-gray-600">Reklam Məkanı (728x90)</div>
+            </div>
+            <div class="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <p>&copy; 2026 KIrayəVar. Bütün hüquqlar qorunur.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALLAR -->
+    <!-- Qeydiyyat Modalı -->
+    <div id="registerModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative">
+            <h3 class="text-xl font-bold">Qeydiyyatdan keç</h3>
+            <div class="space-y-3">
+                <input type="email" id="reg-email" placeholder="Elektron poçt (Email)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <input type="text" id="reg-username" placeholder="İstifadəçi adı (Username)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <input type="password" id="reg-password" placeholder="Şifrə" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <button onclick="handleRegister()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Hesab yarat</button>
+            </div>
+            <button onclick="closeModal('registerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+    </div>
+
+    <!-- Giriş Modalı -->
+    <div id="loginModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative">
+            <h3 class="text-xl font-bold">Hesaba daxil ol</h3>
+            <div class="space-y-3">
+                <input type="email" id="login-email" placeholder="Elektron poçt (Email)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <input type="password" id="login-password" placeholder="Şifrə" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <button onclick="handleLogin()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Daxil ol</button>
+            </div>
+            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+    </div>
+
+    <!-- OTP Təsdiq Modalı -->
+    <div id="otpModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative text-center">
+            <div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mx-auto">
+                <i data-lucide="smartphone" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-bold">Telefon Nömrənizi Təsdiqləyin</h3>
+            <p class="text-xs text-gray-500">İlk elanınızı yerləşdirmək üçün nömrənizi qeyd edin.</p>
+            <div class="space-y-3 text-left">
+                <input type="text" id="otp-phone" placeholder="Məs: +994 50 123 45 67" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <select id="otp-pref" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="phone">Birbaşa Zəng (Telefon)</option>
+                </select>
+                <button onclick="savePhoneAndOpenCreate()" class="w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition">Təsdiq Et və Davam Et</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elan Yerləşdirmə Modalı -->
+    <div id="createListingModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-lg p-6 rounded-3xl shadow-2xl space-y-4 relative my-8">
+            <h3 class="text-xl font-bold">Yeni Elan Yerləşdir</h3>
+            <div class="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
+                <input type="text" id="listing-title" placeholder="Elanın Başlığı" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <textarea id="listing-desc" placeholder="Ətraflı Təsvir" rows="3" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600"></textarea>
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="listing-category" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                        <option value="Evlər">Evlər</option>
+                        <option value="Maşınlar">Maşınlar</option>
+                        <option value="Avadanlıqlar">Avadanlıqlar</option>
+                        <option value="Digər">Digər</option>
+                    </select>
+                    <select id="listing-city" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                        <option value="Bakı">Bakı</option>
+                        <option value="Gəncə">Gəncə</option>
+                        <option value="Sumqayıt">Sumqayıt</option>
+                        <option value="Şəmkir">Şəmkir</option>
+                        <option value="Lənkəran">Lənkəran</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="listing-price" placeholder="Qiymət (AZN)" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <select id="listing-duration" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                        <option value="Günlük">Günlük</option>
+                        <option value="Aylıq">Aylıq</option>
+                        <option value="Saatlıq">Saatlıq</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500">Şəkillər (Minimum 3 ədəd şəkil linki vergüllə ayrılmalıdır)</label>
+                    <textarea id="listing-images" placeholder="https://ornek.com/1.jpg, https://ornek.com/2.jpg, https://ornek.com/3.jpg" rows="2" class="w-full mt-1 bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600"></textarea>
+                </div>
+                <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <span class="text-sm font-medium">Nömrəniz public olsun?</span>
+                    <input type="checkbox" id="listing-public-phone" checked class="w-5 h-5 accent-brand-600">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500">Elan Növü (VIP / İrəli Çəkmə)</label>
+                    <select id="listing-vip-tier" class="w-full mt-1 bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                        <option value="free">Sadə Elan (Pulsuz)</option>
+                        <option value="1">1 Günlük VIP (1 AZN)</option>
+                        <option value="7">1 Həftəlik VIP (5 AZN)</option>
+                        <option value="30">1 Aylıq VIP (15 AZN)</option>
+                    </select>
+                </div>
+                <button onclick="handleCreateListing()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Elanı Yerləşdir</button>
+            </div>
+            <button onclick="closeModal('createListingModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+    </div>
+
+    <!-- SUPABASE CONFIG & JS LOGIC -->
+    <script>
+        // Sizin Təqdim Etdiyiniz Supabase Məlumatları
+        const SUPABASE_URL = 'https://ttldkpvkjloujyxszkou.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0bGRrcHZramxvdWp5eHN6a291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NDY2OTMsImV4cCI6MjEwMDIyMjY5M30.-ACS65vEjZmf0hptMazU88aTU-Bu_Y1fkqbWo7GkQWM';
+        
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = null;
+        let userProfile = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+            await checkUserSession();
+            await loadListings();
+        });
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function router(view) {
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-profile').classList.add('hidden');
+            
+            if(view === 'home') {
+                document.getElementById('view-home').classList.remove('hidden');
+                loadListings();
+            } else if(view === 'profile') {
+                if(!currentUser) return openModal('loginModal');
+                document.getElementById('view-profile').classList.remove('hidden');
+                loadProfileData();
+            }
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); lucide.createIcons(); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        async function checkUserSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                await fetchProfile();
+            }
+            updateAuthUI();
+        }
+
+        async function fetchProfile() {
+            if(!currentUser) return;
+            const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+            if(data) {
+                userProfile = data;
+            }
+        }
+
+        function updateAuthUI() {
+            if(currentUser && userProfile) {
+                document.getElementById('auth-buttons').classList.add('hidden');
+                document.getElementById('user-menu').classList.remove('hidden');
+                document.getElementById('nav-username').innerText = userProfile.username;
+            } else {
+                document.getElementById('auth-buttons').classList.remove('hidden');
+                document.getElementById('user-menu').classList.add('hidden');
+            }
+        }
+
+        async function handleRegister() {
+            const email = document.getElementById('reg-email').value.trim();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value.trim();
+            if(!email || !username || !password) return alert('Bütün xanaları doldurun!');
+
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            if (error) return alert('Xəta: ' + error.message);
+
+            if (data.user) {
+                const { error: profileError } = await supabaseClient.from('profiles').insert([
+                    { id: data.user.id, username, phone: '', phone_verified: false }
+                ]);
+                if(profileError) console.error(profileError);
+                
+                alert('Qeydiyyat uğurla tamamlandı! Zəhmət olmasa daxil olun.');
+                closeModal('registerModal');
+                openModal('loginModal');
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            if(!email || !password) return alert('E-poçt və şifrəni daxil edin!');
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) return alert('Giriş xətası: ' + error.message);
+
+            currentUser = data.user;
+            await fetchProfile();
+            updateAuthUI();
+            closeModal('loginModal');
+            alert('Xoş gəldiniz!');
+            router('home');
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            currentUser = null;
+            userProfile = null;
+            updateAuthUI();
+            router('home');
+        }
+
+        function checkAuthAndOpenCreate() {
+            if(!currentUser) return openModal('loginModal');
+            if(!userProfile || !userProfile.phone_verified) {
+                return openModal('otpModal');
+            }
+            openModal('createListingModal');
+        }
+
+        async function savePhoneAndOpenCreate() {
+            const phone = document.getElementById('otp-phone').value.trim();
+            const contactPref = document.getElementById('otp-pref').value;
+            if(!phone) return alert('Telefon nömrəsini daxil edin!');
+
+            const { error } = await supabaseClient.from('profiles').update({
+                phone: phone,
+                phone_verified: true,
+                contact_pref: contactPref
+            }).eq('id', currentUser.id);
+
+            if(error) return alert('Xəta: ' + error.message);
+
+            await fetchProfile();
+            closeModal('otpModal');
+            openModal('createListingModal');
+        }
+
+        async function handleCreateListing() {
+            const title = document.getElementById('listing-title').value.trim();
+            const description = document.getElementById('listing-desc').value.trim();
+            const category = document.getElementById('listing-category').value;
+            const city = document.getElementById('listing-city').value;
+            const price = parseFloat(document.getElementById('listing-price').value);
+            const duration = document.getElementById('listing-duration').value;
+            const imagesRaw = document.getElementById('listing-images').value.trim();
+            const show_phone = document.getElementById('listing-public-phone').checked;
+            const vipTier = document.getElementById('listing-vip-tier').value;
+
+            if(!title || !description || isNaN(price) || !imagesRaw) return alert('Bütün sahələri düzgün doldurun!');
+
+            const images = imagesRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
+            if(images.length < 3) return alert('Minimum 3 ədəd şəkil linki daxil etməlisiniz!');
+
+            const { error } = await supabaseClient.from('listings').insert([{
+                user_id: currentUser.id,
+                title, description, category, city, price, duration, images,
+                show_phone, phone: userProfile.phone, contact_pref: userProfile.contact_pref,
+                is_vip: vipTier !== 'free'
+            }]);
+
+            if(error) return alert('Elan yerləşdirilərkən xəta: ' + error.message);
+
+            closeModal('createListingModal');
+            router('home');
+            alert('Elanınız uğurla bazaya əlavə edildi!');
+        }
+
+        async function loadListings() {
+            const searchQuery = document.getElementById('filter-search').value.toLowerCase();
+            const catQuery = document.getElementById('filter-category').value;
+            const cityQuery = document.getElementById('filter-city').value;
+            const maxPriceQuery = parseFloat(document.getElementById('filter-max-price').value);
+
+            let query = supabaseClient.from('listings').select('*, profiles(username)').order('is_vip', { ascending: false }).order('created_at', { ascending: false });
+
+            if(catQuery) query = query.eq('category', catQuery);
+            if(cityQuery) query = query.eq('city', cityQuery);
+            if(!isNaN(maxPriceQuery)) query = query.lte('price', maxPriceQuery);
+
+            const { data, error } = await query;
+            const grid = document.getElementById('listings-grid');
+            
+            if(error || !data) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Elanlar yüklənərkən xəta baş verdi.</div>`;
+                return;
+            }
+
+            const filtered = data.filter(item => item.title.toLowerCase().includes(searchQuery) || item.description.toLowerCase().includes(searchQuery));
+
+            document.getElementById('listing-count').innerText = `${filtered.length} elan tapıldı`;
+
+            if(filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Heç bir elan tapılmadı.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl transition flex flex-col">
+                    <div class="relative h-48 bg-gray-100 dark:bg-gray-700">
+                        <img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover">
+                        ${item.is_vip ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">VIP</span>' : ''}
+                        <span class="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full">${item.city}</span>
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-semibold text-brand-600 bg-brand-50 dark:bg-brand-900/30 px-2.5 py-1 rounded-lg">${item.category}</span>
+                                <span class="text-lg font-extrabold text-emerald-600">${item.price} AZN <span class="text-xs text-gray-400">/ ${item.duration}</span></span>
+                            </div>
+                            <h3 class="font-bold text-base mb-1 line-clamp-1">${item.title}</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">${item.description}</p>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                            <span class="text-xs text-gray-400">@${item.profiles ? item.profiles.username : 'istifadəçi'}</span>
+                            ${item.show_phone ? `<span class="text-xs font-bold text-gray-700 dark:text-gray-300">${item.phone}</span>` : ''}
+                            <a href="${item.contact_pref === 'whatsapp' ? 'https://wa.me/' + item.phone.replace(/[^0-9]/g,'') : 'tel:' + item.phone}" target="_blank" class="px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-md">
+                                <i data-lucide="${item.contact_pref === 'whatsapp' ? 'message-circle' : 'phone'}" class="w-3.5 h-3.5"></i> Əlaqə
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function loadProfileData() {
+            if(!userProfile) return;
+            document.getElementById('profile-username-display').innerText = userProfile.username;
+            document.getElementById('profile-avatar-letter').innerText = userProfile.username.charAt(0).toUpperCase();
+            document.getElementById('profile-phone-display').innerText = userProfile.phone_verified ? `Təsdiqlənmiş nömrə: ${userProfile.phone}` : 'Nömrə təsdiqlənməyib';
+
+            const { data, error } = await supabaseClient.from('listings').select('*').eq('user_id', currentUser.id);
+            const myGrid = document.getElementById('my-listings-grid');
+
+            if(!data || data.length === 0) {
+                myGrid.innerHTML = `<p class="text-sm text-gray-400 col-span-full">Hələ heç bir elan yerləşdirməmisiniz.</p>`;
+                return;
+            }
+
+            myGrid.innerHTML = data.map(item => `
+                <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm p-4 space-y-3">
+                    <img src="${item.images[0]}" class="w-full h-36 object-cover rounded-2xl">
+                    <h4 class="font-bold text-sm">${item.title}</h4>
+                    <p class="text-xs text-emerald-600 font-bold">${item.price} AZN / ${item.duration}</p>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
