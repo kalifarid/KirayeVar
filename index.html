@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIrayəVar — İcarə Platforması</title>
+    <title>KIrayəVar — Əmlak və İcarə Platforması</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -74,15 +74,15 @@
                 <p class="text-brand-50 mb-6 text-sm sm:text-base">Evlər, maşınlar, avadanlıqlar və daha çoxu sərfəli şərtlərlə bir toxunuşla yanınızda.</p>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-lg">
-                    <input type="text" id="filter-search" placeholder="Açar sözə görə axtar..." class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
-                    <select id="filter-category" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <input type="text" id="filter-search" placeholder="Açar sözə görə axtar..." class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
+                    <select id="filter-category" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                         <option value="">Bütün Kateqoriyalar</option>
                         <option value="Evlər">Evlər</option>
                         <option value="Maşınlar">Maşınlar</option>
                         <option value="Avadanlıqlar">Avadanlıqlar</option>
                         <option value="Digər">Digər</option>
                     </select>
-                    <select id="filter-city" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <select id="filter-city" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                         <option value="">Bütün Şəhərlər</option>
                         <option value="Bakı">Bakı</option>
                         <option value="Gəncə">Gəncə</option>
@@ -90,7 +90,7 @@
                         <option value="Şəmkir">Şəmkir</option>
                         <option value="Lənkəran">Lənkəran</option>
                     </select>
-                    <input type="number" id="filter-max-price" placeholder="Maks. Qiymət (AZN)" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <input type="number" id="filter-max-price" placeholder="Maks. Qiymət (AZN)" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                     <button onclick="loadListings()" class="bg-brand-600 text-white font-semibold py-2.5 rounded-xl hover:bg-brand-700 transition flex items-center justify-center gap-2">
                         <i data-lucide="search" class="w-4 h-4"></i> Axtar
                     </button>
@@ -133,7 +133,7 @@
 
     </main>
 
-    <!-- FOOTER & REKLAMLAR -->
+    <!-- FOOTER -->
     <footer class="mt-auto bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 pt-6 pb-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -152,9 +152,9 @@
         <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative">
             <h3 class="text-xl font-bold">Qeydiyyatdan keç</h3>
             <div class="space-y-3">
-                <input type="email" id="reg-email" placeholder="Elektron poçt (Email)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
-                <input type="text" id="reg-username" placeholder="İstifadəçi adı (Username)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
-                <input type="password" id="reg-password" placeholder="Şifrə" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <input type="email" id="reg-email" placeholder="Elektron poçt (Email)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
+                <input type="text" id="reg-username" placeholder="İstifadəçi adı (Məs: farid_h)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
+                <input type="password" id="reg-password" placeholder="Şifrə (minimum 6 simvol)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                 <button onclick="handleRegister()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Hesab yarat</button>
             </div>
             <button onclick="closeModal('registerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -166,29 +166,29 @@
         <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative">
             <h3 class="text-xl font-bold">Hesaba daxil ol</h3>
             <div class="space-y-3">
-                <input type="email" id="login-email" placeholder="Elektron poçt (Email)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
-                <input type="password" id="login-password" placeholder="Şifrə" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <input type="email" id="login-email" placeholder="Elektron poçt (Email)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
+                <input type="password" id="login-password" placeholder="Şifrə" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                 <button onclick="handleLogin()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Daxil ol</button>
             </div>
             <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
     </div>
 
-    <!-- OTP Təsdiq Modalı -->
+    <!-- Telefon / Əlaqə Modalı -->
     <div id="otpModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative text-center">
             <div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mx-auto">
                 <i data-lucide="smartphone" class="w-6 h-6"></i>
             </div>
-            <h3 class="text-xl font-bold">Telefon Nömrənizi Təsdiqləyin</h3>
-            <p class="text-xs text-gray-500">İlk elanınızı yerləşdirmək üçün nömrənizi qeyd edin.</p>
+            <h3 class="text-xl font-bold">Əlaqə nömrənizi qeyd edin</h3>
+            <p class="text-xs text-gray-500">Elanlarınızda müştərilərin sizə rahat çata bilməsi üçün vacibdir.</p>
             <div class="space-y-3 text-left">
-                <input type="text" id="otp-phone" placeholder="Məs: +994 50 123 45 67" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
-                <select id="otp-pref" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                <input type="text" id="otp-phone" placeholder="Məs: +994 50 123 45 67" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
+                <select id="otp-pref" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                     <option value="whatsapp">WhatsApp</option>
                     <option value="phone">Birbaşa Zəng (Telefon)</option>
                 </select>
-                <button onclick="savePhoneAndOpenCreate()" class="w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition">Təsdiq Et və Davam Et</button>
+                <button onclick="savePhoneAndOpenCreate()" class="w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition">Yadda saxla və davam et</button>
             </div>
         </div>
     </div>
@@ -198,16 +198,16 @@
         <div class="bg-white dark:bg-gray-800 w-full max-w-lg p-6 rounded-3xl shadow-2xl space-y-4 relative my-8">
             <h3 class="text-xl font-bold">Yeni Elan Yerləşdir</h3>
             <div class="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
-                <input type="text" id="listing-title" placeholder="Elanın Başlığı" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
-                <textarea id="listing-desc" placeholder="Ətraflı Təsvir" rows="3" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600"></textarea>
+                <input type="text" id="listing-title" placeholder="Elanın Başlığı" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
+                <textarea id="listing-desc" placeholder="Ətraflı Təsvir" rows="3" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100"></textarea>
                 <div class="grid grid-cols-2 gap-3">
-                    <select id="listing-category" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <select id="listing-category" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                         <option value="Evlər">Evlər</option>
                         <option value="Maşınlar">Maşınlar</option>
                         <option value="Avadanlıqlar">Avadanlıqlar</option>
                         <option value="Digər">Digər</option>
                     </select>
-                    <select id="listing-city" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <select id="listing-city" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                         <option value="Bakı">Bakı</option>
                         <option value="Gəncə">Gəncə</option>
                         <option value="Sumqayıt">Sumqayıt</option>
@@ -216,8 +216,8 @@
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="listing-price" placeholder="Qiymət (AZN)" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
-                    <select id="listing-duration" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <input type="number" id="listing-price" placeholder="Qiymət (AZN)" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
+                    <select id="listing-duration" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                         <option value="Günlük">Günlük</option>
                         <option value="Aylıq">Aylıq</option>
                         <option value="Saatlıq">Saatlıq</option>
@@ -225,19 +225,17 @@
                 </div>
                 <div>
                     <label class="text-xs font-semibold text-gray-500">Şəkillər (Minimum 3 ədəd şəkil linki vergüllə ayrılmalıdır)</label>
-                    <textarea id="listing-images" placeholder="https://ornek.com/1.jpg, https://ornek.com/2.jpg, https://ornek.com/3.jpg" rows="2" class="w-full mt-1 bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600"></textarea>
+                    <textarea id="listing-images" placeholder="https://images.unsplash.com/photo-..., https://images.unsplash.com/photo-..." rows="2" class="w-full mt-1 bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100"></textarea>
                 </div>
                 <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600">
-                    <span class="text-sm font-medium">Nömrəniz public olsun?</span>
+                    <span class="text-sm font-medium">Nömrəniz elanda görünsün?</span>
                     <input type="checkbox" id="listing-public-phone" checked class="w-5 h-5 accent-brand-600">
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-gray-500">Elan Növü (VIP / İrəli Çəkmə)</label>
-                    <select id="listing-vip-tier" class="w-full mt-1 bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600">
+                    <label class="text-xs font-semibold text-gray-500">Elan Növü</label>
+                    <select id="listing-vip-tier" class="w-full mt-1 bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
                         <option value="free">Sadə Elan (Pulsuz)</option>
-                        <option value="1">1 Günlük VIP (1 AZN)</option>
-                        <option value="7">1 Həftəlik VIP (5 AZN)</option>
-                        <option value="30">1 Aylıq VIP (15 AZN)</option>
+                        <option value="vip">VIP Elan (Ön sıralarda)</option>
                     </select>
                 </div>
                 <button onclick="handleCreateListing()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Elanı Yerləşdir</button>
@@ -248,7 +246,6 @@
 
     <!-- SUPABASE CONFIG & JS LOGIC -->
     <script>
-        // Sizin Təqdim Etdiyiniz Supabase Məlumatları
         const SUPABASE_URL = 'https://ttldkpvkjloujyxszkou.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0bGRrcHZramxvdWp5eHN6a291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NDY2OTMsImV4cCI6MjEwMDIyMjY5M30.-ACS65vEjZmf0hptMazU88aTU-Bu_Y1fkqbWo7GkQWM';
         
@@ -299,6 +296,13 @@
             const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
             if(data) {
                 userProfile = data;
+            } else {
+                // Əgər auth var amma profiles cədvəlində sətri yoxdursa avtomatik yaradırıq
+                const defaultUsername = currentUser.email.split('@')[0];
+                const { data: newDoc } = await supabaseClient.from('profiles').upsert([
+                    { id: currentUser.id, username: defaultUsername, phone: '', phone_verified: false }
+                ]).select().single();
+                if(newDoc) userProfile = newDoc;
             }
         }
 
@@ -317,18 +321,29 @@
             const email = document.getElementById('reg-email').value.trim();
             const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value.trim();
-            if(!email || !username || !password) return alert('Bütün xanaları doldurun!');
 
+            if(!email || !username || !password) return alert('Bütün xanaları doldurun!');
+            if(password.length < 6) return alert('Şifrə ən azı 6 simvoldan ibarət olmalıdır!');
+
+            // 1. İstifadəçi adının unikallığını yoxlayaq
+            const { data: existingUser } = await supabaseClient.from('profiles').select('username').eq('username', username).single();
+            if(existingUser) return alert('Bu istifadəçi adı artıq istifadədədir. Başqa ad seçin.');
+
+            // 2. Supabase Auth qeydiyyatı
             const { data, error } = await supabaseClient.auth.signUp({ email, password });
-            if (error) return alert('Xəta: ' + error.message);
+            if (error) return alert('Qeydiyyat xətası: ' + error.message);
 
             if (data.user) {
+                // 3. Profiles cədvəlinə əlavə edirik
                 const { error: profileError } = await supabaseClient.from('profiles').insert([
                     { id: data.user.id, username, phone: '', phone_verified: false }
                 ]);
-                if(profileError) console.error(profileError);
-                
-                alert('Qeydiyyat uğurla tamamlandı! Zəhmət olmasa daxil olun.');
+
+                if(profileError) {
+                    console.error("Profil xətası:", profileError);
+                }
+
+                alert('Qeydiyyat uğurla tamamlandı! İndi daxil ola bilərsiniz.');
                 closeModal('registerModal');
                 openModal('loginModal');
             }
@@ -340,13 +355,12 @@
             if(!email || !password) return alert('E-poçt və şifrəni daxil edin!');
 
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) return alert('Giriş xətası: ' + error.message);
+            if (error) return alert('Giriş xətası: E-poçt və ya şifrə yanlışdır.');
 
             currentUser = data.user;
             await fetchProfile();
             updateAuthUI();
             closeModal('loginModal');
-            alert('Xoş gəldiniz!');
             router('home');
         }
 
@@ -404,14 +418,14 @@
                 user_id: currentUser.id,
                 title, description, category, city, price, duration, images,
                 show_phone, phone: userProfile.phone, contact_pref: userProfile.contact_pref,
-                is_vip: vipTier !== 'free'
+                is_vip: vipTier === 'vip'
             }]);
 
             if(error) return alert('Elan yerləşdirilərkən xəta: ' + error.message);
 
             closeModal('createListingModal');
             router('home');
-            alert('Elanınız uğurla bazaya əlavə edildi!');
+            alert('Elanınız uğurla yerləşdirildi!');
         }
 
         async function loadListings() {
@@ -448,7 +462,7 @@
                     <div class="relative h-48 bg-gray-100 dark:bg-gray-700">
                         <img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover">
                         ${item.is_vip ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">VIP</span>' : ''}
-                        <span class="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full">${item.city}</span>
+                        <span class="absolute top-3 right-3 bg-black/65 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full">${item.city}</span>
                     </div>
                     <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
                         <div>
@@ -487,12 +501,20 @@
             }
 
             myGrid.innerHTML = data.map(item => `
-                <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm p-4 space-y-3">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm p-4 space-y-3 relative">
                     <img src="${item.images[0]}" class="w-full h-36 object-cover rounded-2xl">
-                    <h4 class="font-bold text-sm">${item.title}</h4>
+                    <h4 class="font-bold text-sm line-clamp-1">${item.title}</h4>
                     <p class="text-xs text-emerald-600 font-bold">${item.price} AZN / ${item.duration}</p>
+                    <button onclick="deleteListing('${item.id}')" class="w-full py-2 bg-rose-500/10 text-rose-500 font-semibold text-xs rounded-xl hover:bg-rose-500 hover:text-white transition">Elanı Sil</button>
                 </div>
             `).join('');
+        }
+
+        async function deleteListing(id) {
+            if(!confirm('Bu elanı silmək istədiyinizə əminsiniz?')) return;
+            const { error } = await supabaseClient.from('listings').delete().eq('id', id);
+            if(error) return alert('Xəta: ' + error.message);
+            loadProfileData();
         }
     </script>
 </body>
