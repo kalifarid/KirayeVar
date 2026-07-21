@@ -1,521 +1,401 @@
 <!DOCTYPE html>
-<html lang="az" class="light">
+<html lang="az">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIrayəVar — Əmlak və İcarə Platforması</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Lucide İkonlar -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Elan Platforması</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .user-panel {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .ads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .ad-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .ad-title {
+            font-size: 1.125rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .ad-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .ad-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .ad-phone {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: none; border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
+<body>
 
-    <!-- HEADER -->
-    <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="router('home')">
-                <div class="bg-brand-600 text-white p-2 rounded-xl font-bold text-xl shadow-lg shadow-brand-500/30">KV</div>
-                <span class="text-xl font-extrabold tracking-tight">KIrayə<span class="text-brand-600">Var</span></span>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-amber-400"></i>
-                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-gray-600"></i>
-                </button>
-
-                <div id="auth-buttons" class="flex items-center gap-2">
-                    <button onclick="openModal('loginModal')" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-brand-600 transition">Giriş</button>
-                    <button onclick="openModal('registerModal')" class="px-4 py-2 text-sm font-semibold bg-brand-600 text-white rounded-xl shadow-lg shadow-brand-600/30 hover:bg-brand-700 transition">Qeydiyyat</button>
-                </div>
-
-                <div id="user-menu" class="hidden flex items-center gap-3">
-                    <button onclick="checkAuthAndOpenCreate()" class="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-600/30 hover:bg-emerald-700 transition">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Elan Yerləşdir
-                    </button>
-                    <button onclick="router('profile')" class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 transition">
-                        <i data-lucide="user" class="w-4 h-4 text-brand-600"></i>
-                        <span id="nav-username" class="text-sm font-medium">İstifadəçi</span>
-                    </button>
-                    <button onclick="logout()" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition" title="Çıxış">
-                        <i data-lucide="log-out" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
+    <header>
+        <div class="logo">Elanlar.az</div>
+        <div class="user-panel" id="userPanel">
+            <!-- Dinamik olaraq dəyişəcək -->
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- HOME VIEW -->
-        <div id="view-home" class="space-y-8">
-            <div class="bg-gradient-to-r from-brand-600 to-indigo-700 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-brand-600/20">
-                <h1 class="text-3xl sm:text-4xl font-extrabold mb-3">İstədiyiniz hər şeyi dərhal icarəyə götürün</h1>
-                <p class="text-brand-50 mb-6 text-sm sm:text-base">Evlər, maşınlar, avadanlıqlar və daha çoxu sərfəli şərtlərlə bir toxunuşla yanınızda.</p>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-lg">
-                    <input type="text" id="filter-search" placeholder="Açar sözə görə axtar..." class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                    <select id="filter-category" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                        <option value="">Bütün Kateqoriyalar</option>
-                        <option value="Evlər">Evlər</option>
-                        <option value="Maşınlar">Maşınlar</option>
-                        <option value="Avadanlıqlar">Avadanlıqlar</option>
-                        <option value="Digər">Digər</option>
-                    </select>
-                    <select id="filter-city" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                        <option value="">Bütün Şəhərlər</option>
-                        <option value="Bakı">Bakı</option>
-                        <option value="Gəncə">Gəncə</option>
-                        <option value="Sumqayıt">Sumqayıt</option>
-                        <option value="Şəmkir">Şəmkir</option>
-                        <option value="Lənkəran">Lənkəran</option>
-                    </select>
-                    <input type="number" id="filter-max-price" placeholder="Maks. Qiymət (AZN)" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                    <button onclick="loadListings()" class="bg-brand-600 text-white font-semibold py-2.5 rounded-xl hover:bg-brand-700 transition flex items-center justify-center gap-2">
-                        <i data-lucide="search" class="w-4 h-4"></i> Axtar
-                    </button>
+    <div class="container">
+        <!-- Elan Yerləşdirmə Bölməsi (Yalnız giriş edənlərə görünür) -->
+        <div id="createAdSection" class="card hidden">
+            <h2>Yeni Elan Yerləşdir</h2>
+            <form id="adForm">
+                <div class="form-group">
+                    <label>Elanın Başlığı</label>
+                    <input type="text" id="adTitle" required placeholder="Məsələn: 3 otaqlı mənzil">
                 </div>
-            </div>
-
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold">Son Elanlar</h2>
-                    <span id="listing-count" class="text-sm text-gray-500 dark:text-gray-400">Yüklənir...</span>
+                <div class="form-group">
+                    <label>Ətraflı Məlumat</label>
+                    <textarea id="adDesc" rows="3" required placeholder="Elan haqqında məlumat qeyd edin..."></script>
                 </div>
-                <div id="listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Dinamik doldurulacaq -->
+                <div class="form-group">
+                    <label>Əlaqə Nömrəsi (İstəyə bağlı)</label>
+                    <input type="text" id="adPhone" placeholder="+994 50 123 45 67">
                 </div>
-            </div>
+                <button type="submit" class="btn">Elanı Paylaş</button>
+            </form>
         </div>
 
-        <!-- PROFILE VIEW -->
-        <div id="view-profile" class="hidden space-y-6">
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-brand-500/10 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-2xl" id="profile-avatar-letter">F</div>
-                    <div>
-                        <h2 class="text-xl font-bold" id="profile-username-display">İstifadəçi Adı</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400" id="profile-phone-display">Yüklənir...</p>
-                    </div>
-                </div>
-                <button onclick="checkAuthAndOpenCreate()" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl shadow-md hover:bg-emerald-700 transition flex items-center gap-2">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Yeni Elan Yerləşdir
-                </button>
-            </div>
-
-            <div class="space-y-4">
-                <h3 class="text-lg font-bold">Mənim Elanlarım</h3>
-                <div id="my-listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- İstifadəçinin elanları -->
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="mt-auto bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 pt-6 pb-4">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl text-center text-xs text-gray-400 border border-dashed border-gray-300 dark:border-gray-600">Reklam Məkanı (728x90)</div>
-                <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl text-center text-xs text-gray-400 border border-dashed border-gray-300 dark:border-gray-600">Reklam Məkanı (728x90)</div>
-            </div>
-            <div class="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100 dark:border-gray-700">
-                <p>&copy; 2026 KIrayəVar. Bütün hüquqlar qorunur.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- MODALLAR -->
-    <!-- Qeydiyyat Modalı -->
-    <div id="registerModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative">
-            <h3 class="text-xl font-bold">Qeydiyyatdan keç</h3>
-            <div class="space-y-3">
-                <input type="email" id="reg-email" placeholder="Elektron poçt (Email)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                <input type="text" id="reg-username" placeholder="İstifadəçi adı (Məs: farid_h)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                <input type="password" id="reg-password" placeholder="Şifrə (minimum 6 simvol)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                <button onclick="handleRegister()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Hesab yarat</button>
-            </div>
-            <button onclick="closeModal('registerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-    </div>
-
-    <!-- Giriş Modalı -->
-    <div id="loginModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative">
-            <h3 class="text-xl font-bold">Hesaba daxil ol</h3>
-            <div class="space-y-3">
-                <input type="email" id="login-email" placeholder="Elektron poçt (Email)" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                <input type="password" id="login-password" placeholder="Şifrə" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                <button onclick="handleLogin()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Daxil ol</button>
-            </div>
-            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-    </div>
-
-    <!-- Telefon / Əlaqə Modalı -->
-    <div id="otpModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative text-center">
-            <div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mx-auto">
-                <i data-lucide="smartphone" class="w-6 h-6"></i>
-            </div>
-            <h3 class="text-xl font-bold">Əlaqə nömrənizi qeyd edin</h3>
-            <p class="text-xs text-gray-500">Elanlarınızda müştərilərin sizə rahat çata bilməsi üçün vacibdir.</p>
-            <div class="space-y-3 text-left">
-                <input type="text" id="otp-phone" placeholder="Məs: +994 50 123 45 67" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                <select id="otp-pref" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="phone">Birbaşa Zəng (Telefon)</option>
-                </select>
-                <button onclick="savePhoneAndOpenCreate()" class="w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition">Yadda saxla və davam et</button>
+        <!-- Elanların Siyahısı -->
+        <div>
+            <h2>Mövcud Elanlar</h2>
+            <div id="adsContainer" class="ads-grid">
+                <!-- Elanlar burada göstəriləcək -->
             </div>
         </div>
     </div>
 
-    <!-- Elan Yerləşdirmə Modalı -->
-    <div id="createListingModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-lg p-6 rounded-3xl shadow-2xl space-y-4 relative my-8">
-            <h3 class="text-xl font-bold">Yeni Elan Yerləşdir</h3>
-            <div class="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
-                <input type="text" id="listing-title" placeholder="Elanın Başlığı" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                <textarea id="listing-desc" placeholder="Ətraflı Təsvir" rows="3" class="w-full bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100"></textarea>
-                <div class="grid grid-cols-2 gap-3">
-                    <select id="listing-category" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                        <option value="Evlər">Evlər</option>
-                        <option value="Maşınlar">Maşınlar</option>
-                        <option value="Avadanlıqlar">Avadanlıqlar</option>
-                        <option value="Digər">Digər</option>
-                    </select>
-                    <select id="listing-city" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                        <option value="Bakı">Bakı</option>
-                        <option value="Gəncə">Gəncə</option>
-                        <option value="Sumqayıt">Sumqayıt</option>
-                        <option value="Şəmkir">Şəmkir</option>
-                        <option value="Lənkəran">Lənkəran</option>
-                    </select>
+    <!-- Giriş / Qeydiyyat Modalı -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="toggleModal(false)">&times;</button>
+            <h2 id="modalTitle">Qeydiyyat / Giriş</h2>
+            <form id="authForm">
+                <div class="form-group">
+                    <label>İstifadəçi adı (Username)</label>
+                    <input type="text" id="authUsername" required placeholder="İstifadəçi adınızı daxil edin">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="listing-price" placeholder="Qiymət (AZN)" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                    <select id="listing-duration" class="bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                        <option value="Günlük">Günlük</option>
-                        <option value="Aylıq">Aylıq</option>
-                        <option value="Saatlıq">Saatlıq</option>
-                    </select>
+                <div class="form-group">
+                    <label>Şifrə (Password)</label>
+                    <input type="password" id="authPassword" required placeholder="Şifrənizi daxil edin">
                 </div>
-                <div>
-                    <label class="text-xs font-semibold text-gray-500">Şəkillər (Minimum 3 ədəd şəkil linki vergüllə ayrılmalıdır)</label>
-                    <textarea id="listing-images" placeholder="https://images.unsplash.com/photo-..., https://images.unsplash.com/photo-..." rows="2" class="w-full mt-1 bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100"></textarea>
-                </div>
-                <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600">
-                    <span class="text-sm font-medium">Nömrəniz elanda görünsün?</span>
-                    <input type="checkbox" id="listing-public-phone" checked class="w-5 h-5 accent-brand-600">
-                </div>
-                <div>
-                    <label class="text-xs font-semibold text-gray-500">Elan Növü</label>
-                    <select id="listing-vip-tier" class="w-full mt-1 bg-gray-50 dark:bg-gray-700 px-4 py-2.5 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100">
-                        <option value="free">Sadə Elan (Pulsuz)</option>
-                        <option value="vip">VIP Elan (Ön sıralarda)</option>
-                    </select>
-                </div>
-                <button onclick="handleCreateListing()" class="w-full py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition">Elanı Yerləşdir</button>
-            </div>
-            <button onclick="closeModal('createListingModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button type="submit" class="btn" style="width: 100%;">Daxil ol / Qeydiyyatdan keç</button>
+            </form>
         </div>
     </div>
 
-    <!-- SUPABASE CONFIG & JS LOGIC -->
     <script>
-        const SUPABASE_URL = 'https://ttldkpvkjloujyxszkou.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0bGRrcHZramxvdWp5eHN6a291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NDY2OTMsImV4cCI6MjEwMDIyMjY5M30.-ACS65vEjZmf0hptMazU88aTU-Bu_Y1fkqbWo7GkQWM';
-        
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // LocalStorage-dən verilənləri oxumaq
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let ads = JSON.parse(localStorage.getItem('ads')) || [
+            { id: 1, title: "Nümunə Elan: Velosiped satılır", desc: "Az işlənib, əla vəziyyətdədir.", phone: "+994 55 000 00 00", author: "Nicat" }
+        ];
+        let currentUser = localStorage.getItem('currentUser') || null;
 
-        let currentUser = null;
-        let userProfile = null;
+        const userPanel = document.getElementById('userPanel');
+        const createAdSection = document.getElementById('createAdSection');
+        const adsContainer = document.getElementById('adsContainer');
+        const authModal = document.getElementById('authModal');
+        const authForm = document.getElementById('authForm');
+        const adForm = document.getElementById('adForm');
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            lucide.createIcons();
-            await checkUserSession();
-            await loadListings();
+        function updateUI() {
+            if (currentUser) {
+                userPanel.innerHTML = `
+                    <span>Salam, <b>${currentUser}</b></span>
+                    <button class="btn btn-danger" onclick="logout()">Çıxış</button>
+                `;
+                createAdSection.classList.remove('hidden');
+            } else {
+                userPanel.innerHTML = `
+                    <button class="btn btn-outline" onclick="toggleModal(true)">Giriş / Qeydiyyat</button>
+                `;
+                createAdSection.classList.add('hidden');
+            }
+            renderAds();
+        }
+
+        function toggleModal(show) {
+            if (show) {
+                authModal.classList.add('active');
+            } else {
+                authModal.classList.remove('active');
+            }
+        }
+
+        // Giriş və ya Avtomatik Qeydiyyat (Sadəcə username və password)
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+
+            if (!username || !password) return;
+
+            let user = users.find(u => u.username === username);
+            if (user) {
+                if (user.password === password) {
+                    currentUser = username;
+                } else {
+                    alert("Şifrə yanlışdır!");
+                    return;
+                }
+            } else {
+                // Əgər istifadəçi yoxdursa, avtomatik qeydiyyatdan keçir
+                users.push({ username, password });
+                localStorage.setItem('users', JSON.stringify(users));
+                currentUser = username;
+                alert("Uğurla qeydiyyatdan keçdiniz və daxil oldunuz!");
+            }
+
+            localStorage.setItem('currentUser', currentUser);
+            toggleModal(false);
+            authForm.reset();
+            updateUI();
         });
 
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
-        }
-
-        function router(view) {
-            document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-profile').classList.add('hidden');
-            
-            if(view === 'home') {
-                document.getElementById('view-home').classList.remove('hidden');
-                loadListings();
-            } else if(view === 'profile') {
-                if(!currentUser) return openModal('loginModal');
-                document.getElementById('view-profile').classList.remove('hidden');
-                loadProfileData();
-            }
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        }
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); lucide.createIcons(); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        async function checkUserSession() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                await fetchProfile();
-            }
-            updateAuthUI();
-        }
-
-        async function fetchProfile() {
-            if(!currentUser) return;
-            const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
-            if(data) {
-                userProfile = data;
-            } else {
-                // Əgər auth var amma profiles cədvəlində sətri yoxdursa avtomatik yaradırıq
-                const defaultUsername = currentUser.email.split('@')[0];
-                const { data: newDoc } = await supabaseClient.from('profiles').upsert([
-                    { id: currentUser.id, username: defaultUsername, phone: '', phone_verified: false }
-                ]).select().single();
-                if(newDoc) userProfile = newDoc;
-            }
-        }
-
-        function updateAuthUI() {
-            if(currentUser && userProfile) {
-                document.getElementById('auth-buttons').classList.add('hidden');
-                document.getElementById('user-menu').classList.remove('hidden');
-                document.getElementById('nav-username').innerText = userProfile.username;
-            } else {
-                document.getElementById('auth-buttons').classList.remove('hidden');
-                document.getElementById('user-menu').classList.add('hidden');
-            }
-        }
-
-        async function handleRegister() {
-            const email = document.getElementById('reg-email').value.trim();
-            const username = document.getElementById('reg-username').value.trim();
-            const password = document.getElementById('reg-password').value.trim();
-
-            if(!email || !username || !password) return alert('Bütün xanaları doldurun!');
-            if(password.length < 6) return alert('Şifrə ən azı 6 simvoldan ibarət olmalıdır!');
-
-            // 1. İstifadəçi adının unikallığını yoxlayaq
-            const { data: existingUser } = await supabaseClient.from('profiles').select('username').eq('username', username).single();
-            if(existingUser) return alert('Bu istifadəçi adı artıq istifadədədir. Başqa ad seçin.');
-
-            // 2. Supabase Auth qeydiyyatı
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
-            if (error) return alert('Qeydiyyat xətası: ' + error.message);
-
-            if (data.user) {
-                // 3. Profiles cədvəlinə əlavə edirik
-                const { error: profileError } = await supabaseClient.from('profiles').insert([
-                    { id: data.user.id, username, phone: '', phone_verified: false }
-                ]);
-
-                if(profileError) {
-                    console.error("Profil xətası:", profileError);
-                }
-
-                alert('Qeydiyyat uğurla tamamlandı! İndi daxil ola bilərsiniz.');
-                closeModal('registerModal');
-                openModal('loginModal');
-            }
-        }
-
-        async function handleLogin() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-            if(!email || !password) return alert('E-poçt və şifrəni daxil edin!');
-
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) return alert('Giriş xətası: E-poçt və ya şifrə yanlışdır.');
-
-            currentUser = data.user;
-            await fetchProfile();
-            updateAuthUI();
-            closeModal('loginModal');
-            router('home');
-        }
-
-        async function logout() {
-            await supabaseClient.auth.signOut();
+        function logout() {
             currentUser = null;
-            userProfile = null;
-            updateAuthUI();
-            router('home');
+            localStorage.removeItem('currentUser');
+            updateUI();
         }
 
-        function checkAuthAndOpenCreate() {
-            if(!currentUser) return openModal('loginModal');
-            if(!userProfile || !userProfile.phone_verified) {
-                return openModal('otpModal');
-            }
-            openModal('createListingModal');
-        }
+        // Elan əlavə etmək (Nömrə tələbi məcburi deyil, amma elanda göstərilir)
+        adForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('adTitle').value;
+            const desc = document.getElementById('adDesc').value;
+            const phone = document.getElementById('adPhone').value.trim();
 
-        async function savePhoneAndOpenCreate() {
-            const phone = document.getElementById('otp-phone').value.trim();
-            const contactPref = document.getElementById('otp-pref').value;
-            if(!phone) return alert('Telefon nömrəsini daxil edin!');
+            const newAd = {
+                id: Date.now(),
+                title,
+                desc,
+                phone: phone ? phone : "Qeyd olunmayıb",
+                author: currentUser
+            };
 
-            const { error } = await supabaseClient.from('profiles').update({
-                phone: phone,
-                phone_verified: true,
-                contact_pref: contactPref
-            }).eq('id', currentUser.id);
+            ads.unshift(newAd);
+            localStorage.setItem('ads', JSON.stringify(ads));
+            adForm.reset();
+            renderAds();
+        });
 
-            if(error) return alert('Xəta: ' + error.message);
-
-            await fetchProfile();
-            closeModal('otpModal');
-            openModal('createListingModal');
-        }
-
-        async function handleCreateListing() {
-            const title = document.getElementById('listing-title').value.trim();
-            const description = document.getElementById('listing-desc').value.trim();
-            const category = document.getElementById('listing-category').value;
-            const city = document.getElementById('listing-city').value;
-            const price = parseFloat(document.getElementById('listing-price').value);
-            const duration = document.getElementById('listing-duration').value;
-            const imagesRaw = document.getElementById('listing-images').value.trim();
-            const show_phone = document.getElementById('listing-public-phone').checked;
-            const vipTier = document.getElementById('listing-vip-tier').value;
-
-            if(!title || !description || isNaN(price) || !imagesRaw) return alert('Bütün sahələri düzgün doldurun!');
-
-            const images = imagesRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
-            if(images.length < 3) return alert('Minimum 3 ədəd şəkil linki daxil etməlisiniz!');
-
-            const { error } = await supabaseClient.from('listings').insert([{
-                user_id: currentUser.id,
-                title, description, category, city, price, duration, images,
-                show_phone, phone: userProfile.phone, contact_pref: userProfile.contact_pref,
-                is_vip: vipTier === 'vip'
-            }]);
-
-            if(error) return alert('Elan yerləşdirilərkən xəta: ' + error.message);
-
-            closeModal('createListingModal');
-            router('home');
-            alert('Elanınız uğurla yerləşdirildi!');
-        }
-
-        async function loadListings() {
-            const searchQuery = document.getElementById('filter-search').value.toLowerCase();
-            const catQuery = document.getElementById('filter-category').value;
-            const cityQuery = document.getElementById('filter-city').value;
-            const maxPriceQuery = parseFloat(document.getElementById('filter-max-price').value);
-
-            let query = supabaseClient.from('listings').select('*, profiles(username)').order('is_vip', { ascending: false }).order('created_at', { ascending: false });
-
-            if(catQuery) query = query.eq('category', catQuery);
-            if(cityQuery) query = query.eq('city', cityQuery);
-            if(!isNaN(maxPriceQuery)) query = query.lte('price', maxPriceQuery);
-
-            const { data, error } = await query;
-            const grid = document.getElementById('listings-grid');
-            
-            if(error || !data) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Elanlar yüklənərkən xəta baş verdi.</div>`;
+        function renderAds() {
+            if (ads.length === 0) {
+                adsContainer.innerHTML = `<p>Hələ ki, heç bir elan yoxdur.</p>`;
                 return;
             }
 
-            const filtered = data.filter(item => item.title.toLowerCase().includes(searchQuery) || item.description.toLowerCase().includes(searchQuery));
-
-            document.getElementById('listing-count').innerText = `${filtered.length} elan tapıldı`;
-
-            if(filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Heç bir elan tapılmadı.</div>`;
-                return;
-            }
-
-            grid.innerHTML = filtered.map(item => `
-                <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl transition flex flex-col">
-                    <div class="relative h-48 bg-gray-100 dark:bg-gray-700">
-                        <img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover">
-                        ${item.is_vip ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">VIP</span>' : ''}
-                        <span class="absolute top-3 right-3 bg-black/65 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full">${item.city}</span>
+            adsContainer.innerHTML = ads.map(ad => `
+                <div class="ad-card">
+                    <div>
+                        <div class="ad-title">${escapeHtml(ad.title)}</div>
+                        <div class="ad-desc">${escapeHtml(ad.desc)}</div>
                     </div>
-                    <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
-                        <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-semibold text-brand-600 bg-brand-50 dark:bg-brand-900/30 px-2.5 py-1 rounded-lg">${item.category}</span>
-                                <span class="text-lg font-extrabold text-emerald-600">${item.price} AZN <span class="text-xs text-gray-400">/ ${item.duration}</span></span>
-                            </div>
-                            <h3 class="font-bold text-base mb-1 line-clamp-1">${item.title}</h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">${item.description}</p>
-                        </div>
-                        <div class="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                            <span class="text-xs text-gray-400">@${item.profiles ? item.profiles.username : 'istifadəçi'}</span>
-                            ${item.show_phone ? `<span class="text-xs font-bold text-gray-700 dark:text-gray-300">${item.phone}</span>` : ''}
-                            <a href="${item.contact_pref === 'whatsapp' ? 'https://wa.me/' + item.phone.replace(/[^0-9]/g,'') : 'tel:' + item.phone}" target="_blank" class="px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-md">
-                                <i data-lucide="${item.contact_pref === 'whatsapp' ? 'message-circle' : 'phone'}" class="w-3.5 h-3.5"></i> Əlaqə
-                            </a>
-                        </div>
+                    <div class="ad-footer">
+                        <span>İstifadəçi: <b>${escapeHtml(ad.author)}</b></span>
+                        <span class="ad-phone">📞 ${escapeHtml(ad.phone)}</span>
                     </div>
                 </div>
             `).join('');
-            lucide.createIcons();
         }
 
-        async function loadProfileData() {
-            if(!userProfile) return;
-            document.getElementById('profile-username-display').innerText = userProfile.username;
-            document.getElementById('profile-avatar-letter').innerText = userProfile.username.charAt(0).toUpperCase();
-            document.getElementById('profile-phone-display').innerText = userProfile.phone_verified ? `Təsdiqlənmiş nömrə: ${userProfile.phone}` : 'Nömrə təsdiqlənməyib';
-
-            const { data, error } = await supabaseClient.from('listings').select('*').eq('user_id', currentUser.id);
-            const myGrid = document.getElementById('my-listings-grid');
-
-            if(!data || data.length === 0) {
-                myGrid.innerHTML = `<p class="text-sm text-gray-400 col-span-full">Hələ heç bir elan yerləşdirməmisiniz.</p>`;
-                return;
-            }
-
-            myGrid.innerHTML = data.map(item => `
-                <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm p-4 space-y-3 relative">
-                    <img src="${item.images[0]}" class="w-full h-36 object-cover rounded-2xl">
-                    <h4 class="font-bold text-sm line-clamp-1">${item.title}</h4>
-                    <p class="text-xs text-emerald-600 font-bold">${item.price} AZN / ${item.duration}</p>
-                    <button onclick="deleteListing('${item.id}')" class="w-full py-2 bg-rose-500/10 text-rose-500 font-semibold text-xs rounded-xl hover:bg-rose-500 hover:text-white transition">Elanı Sil</button>
-                </div>
-            `).join('');
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
-        async function deleteListing(id) {
-            if(!confirm('Bu elanı silmək istədiyinizə əminsiniz?')) return;
-            const { error } = await supabaseClient.from('listings').delete().eq('id', id);
-            if(error) return alert('Xəta: ' + error.message);
-            loadProfileData();
-        }
+        // İlkin yüklənmə
+        updateUI();
     </script>
 </body>
 </html>
