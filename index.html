@@ -1,401 +1,464 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="az" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elan Platforması</title>
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --border: #e2e8f0;
-            --danger: #ef4444;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KirayeVar — İcarə Elanları</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+:root[data-theme="light"]{
+  --bg:#F6F4EF; --surface:#FFFFFF; --text:#1B1A18; --muted:#6B6459;
+  --border:#E6E1D6; --accent:#C08829; --accent-ink:#3A2B08;
+  --vip:#0F4C4C; --vip-ink:#EAF7F5; --danger:#B23A2E;
+}
+:root[data-theme="dark"]{
+  --bg:#14181A; --surface:#1D2326; --text:#EDEBE6; --muted:#9A958A;
+  --border:#2B3236; --accent:#D9A53C; --accent-ink:#1D1400;
+  --vip:#2FA6A0; --vip-ink:#052422; --danger:#E0574A;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;transition:background .2s,color .2s;}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:700;margin:0;}
+.price{font-family:'IBM Plex Mono',monospace;}
+button,select,input,textarea{font-family:inherit;font-size:1rem;}
+a{color:inherit;}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+header{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;}
+.header-row{display:flex;align-items:center;gap:12px;max-width:1100px;margin:0 auto;flex-wrap:wrap;}
+.logo{font-size:1.4rem;letter-spacing:-0.5px;color:var(--accent);white-space:nowrap;}
+.search-box{flex:1;min-width:160px;display:flex;gap:8px;}
+.search-box input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);}
+.btn{padding:9px 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;white-space:nowrap;}
+.btn-accent{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;}
+.btn-vip{background:var(--vip);color:var(--vip-ink);border-color:var(--vip);}
+.theme-select{padding:8px;border-radius:9px;border:1px solid var(--border);background:var(--bg);color:var(--text);}
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 60px;}
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;background:var(--surface);border:1px solid var(--border);padding:14px;border-radius:12px;}
+.filters select,.filters input{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);}
 
-        header {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
+.listing-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;}
+.listing-card:hover{border-color:var(--accent);}
+.listing-card img{width:100%;height:150px;object-fit:cover;display:block;}
+.listing-card::before,.listing-card::after{content:"";position:absolute;top:150px;width:14px;height:14px;background:var(--bg);border-radius:50%;z-index:2;}
+.listing-card::before{left:-7px;} .listing-card::after{right:-7px;}
+.card-divider{border-top:1px dashed var(--border);margin:0 16px;}
+.card-body{padding:12px 16px;}
+.card-body h3{font-size:1.05rem;margin-bottom:4px;}
+.card-meta{color:var(--muted);font-size:.85rem;margin-bottom:6px;}
+.card-price{font-weight:600;color:var(--accent);}
+.vip-badge{position:absolute;top:8px;left:8px;background:var(--vip);color:var(--vip-ink);font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:20px;z-index:3;}
+.fav-btn{position:absolute;top:8px;right:8px;z-index:3;background:rgba(0,0,0,.45);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;}
 
-        .logo {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .user-panel {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--primary-hover);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        h2 {
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            font-size: 0.875rem;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 0.375rem;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, textarea:focus {
-            border-color: var(--primary);
-        }
-
-        .ads-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .ad-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            padding: 1.25rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .ad-title {
-            font-size: 1.125rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .ad-desc {
-            color: var(--text-light);
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-            flex-grow: 1;
-        }
-
-        .ad-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border);
-            padding-top: 0.75rem;
-            font-size: 0.875rem;
-        }
-
-        .ad-phone {
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 0.5rem;
-            width: 100%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 1rem; right: 1rem;
-            background: none; border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 12px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:14px;max-width:560px;width:100%;padding:22px;position:relative;}
+.modal h2{margin-bottom:14px;}
+.modal .close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);}
+.field{margin-bottom:12px;display:flex;flex-direction:column;gap:5px;}
+.field input,.field select,.field textarea{padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);width:100%;}
+.field label{font-size:.85rem;color:var(--muted);}
+.detail-imgs{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;}
+.detail-imgs img{height:180px;border-radius:10px;}
+.tabbar{display:flex;gap:8px;margin-bottom:14px;}
+.tabbar button.active{background:var(--accent);color:var(--accent-ink);}
+.mini-list{display:flex;flex-direction:column;gap:10px;}
+.mini-item{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);padding:10px 12px;border-radius:10px;}
+.footer-ads{max-width:1100px;margin:20px auto 0;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:0 16px;}
+.ad-box{border:1px dashed var(--border);border-radius:10px;padding:16px 26px;color:var(--muted);font-size:.85rem;}
+.hidden{display:none !important;}
+</style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">Elanlar.az</div>
-        <div class="user-panel" id="userPanel">
-            <!-- Dinamik olaraq dəyişəcək -->
-        </div>
-    </header>
-
-    <div class="container">
-        <!-- Elan Yerləşdirmə Bölməsi (Yalnız giriş edənlərə görünür) -->
-        <div id="createAdSection" class="card hidden">
-            <h2>Yeni Elan Yerləşdir</h2>
-            <form id="adForm">
-                <div class="form-group">
-                    <label>Elanın Başlığı</label>
-                    <input type="text" id="adTitle" required placeholder="Məsələn: 3 otaqlı mənzil">
-                </div>
-                <div class="form-group">
-                    <label>Ətraflı Məlumat</label>
-                    <textarea id="adDesc" rows="3" required placeholder="Elan haqqında məlumat qeyd edin..."></script>
-                </div>
-                <div class="form-group">
-                    <label>Əlaqə Nömrəsi (İstəyə bağlı)</label>
-                    <input type="text" id="adPhone" placeholder="+994 50 123 45 67">
-                </div>
-                <button type="submit" class="btn">Elanı Paylaş</button>
-            </form>
-        </div>
-
-        <!-- Elanların Siyahısı -->
-        <div>
-            <h2>Mövcud Elanlar</h2>
-            <div id="adsContainer" class="ads-grid">
-                <!-- Elanlar burada göstəriləcək -->
-            </div>
-        </div>
+<header>
+  <div class="header-row">
+    <div class="logo">KirayeVar</div>
+    <div class="search-box">
+      <input id="searchInput" placeholder="Nə axtarırsınız? (məs. 2 otaqlı ev)">
+      <button class="btn" onclick="loadListings()">Axtar</button>
     </div>
+    <select class="theme-select" id="themeSelect" onchange="setTheme(this.value)">
+      <option value="light">☀️ Ağ</option>
+      <option value="dark">🌙 Qaranlıq</option>
+      <option value="system">🖥️ Sistem</option>
+    </select>
+    <div id="authArea"></div>
+  </div>
+</header>
 
-    <!-- Giriş / Qeydiyyat Modalı -->
-    <div class="modal" id="authModal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="toggleModal(false)">&times;</button>
-            <h2 id="modalTitle">Qeydiyyat / Giriş</h2>
-            <form id="authForm">
-                <div class="form-group">
-                    <label>İstifadəçi adı (Username)</label>
-                    <input type="text" id="authUsername" required placeholder="İstifadəçi adınızı daxil edin">
-                </div>
-                <div class="form-group">
-                    <label>Şifrə (Password)</label>
-                    <input type="password" id="authPassword" required placeholder="Şifrənizi daxil edin">
-                </div>
-                <button type="submit" class="btn" style="width: 100%;">Daxil ol / Qeydiyyatdan keç</button>
-            </form>
-        </div>
+<div class="wrap">
+  <div class="filters">
+    <select id="fCategory" onchange="loadListings()"><option value="">Bütün kateqoriyalar</option></select>
+    <select id="fCity" onchange="loadListings()">
+      <option value="">Bütün şəhərlər</option>
+      <option>Bakı</option><option>Gəncə</option><option>Sumqayıt</option><option>Şəki</option>
+      <option>Lənkəran</option><option>Qəbələ</option><option>Quba</option><option>Naxçıvan</option><option>Digər</option>
+    </select>
+    <select id="fPeriod" onchange="loadListings()">
+      <option value="">Bütün müddətlər</option>
+      <option>günlük</option><option>həftəlik</option><option>aylıq</option>
+    </select>
+    <input id="fMin" type="number" placeholder="Min qiymət" style="width:110px" oninput="loadListings()">
+    <input id="fMax" type="number" placeholder="Max qiymət" style="width:110px" oninput="loadListings()">
+    <button class="btn btn-accent" onclick="openNewListing()">+ Elan yerləşdir</button>
+  </div>
+
+  <div id="listingsGrid" class="grid"></div>
+</div>
+
+<div class="footer-ads">
+  <div class="ad-box">Reklam yeri (banner) — 1</div>
+  <div class="ad-box">Reklam yeri (banner) — 2</div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="close" onclick="closeModal('authModal')">×</button>
+    <div class="tabbar">
+      <button id="tabLogin" class="btn active" onclick="switchAuthTab('login')">Giriş</button>
+      <button id="tabRegister" class="btn" onclick="switchAuthTab('register')">Qeydiyyat</button>
     </div>
+    <div id="loginForm">
+      <h2>Hesaba giriş</h2>
+      <div class="field"><label>İstifadəçi adı</label><input id="loginUsername"></div>
+      <div class="field"><label>Şifrə</label><input id="loginPassword" type="password"></div>
+      <button class="btn btn-accent" onclick="doLogin()">Daxil ol</button>
+      <p id="loginError" style="color:var(--danger);font-size:.85rem;"></p>
+    </div>
+    <div id="registerForm" class="hidden">
+      <h2>Yeni hesab</h2>
+      <div class="field"><label>İstifadəçi adı</label><input id="regUsername"></div>
+      <div class="field"><label>Şifrə</label><input id="regPassword" type="password"></div>
+      <div class="field"><label>Telefon nömrəsi (+994...)</label><input id="regPhone" placeholder="+994501234567"></div>
+      <div class="field">
+        <label>Əlaqə üsulu</label>
+        <select id="regContactMethod"><option value="whatsapp">WhatsApp</option><option value="phone">Zəng</option></select>
+      </div>
+      <button class="btn btn-accent" onclick="doRegister()">Qeydiyyatdan keç</button>
+      <p id="regError" style="color:var(--danger);font-size:.85rem;"></p>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // LocalStorage-dən verilənləri oxumaq
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        let ads = JSON.parse(localStorage.getItem('ads')) || [
-            { id: 1, title: "Nümunə Elan: Velosiped satılır", desc: "Az işlənib, əla vəziyyətdədir.", phone: "+994 55 000 00 00", author: "Nicat" }
-        ];
-        let currentUser = localStorage.getItem('currentUser') || null;
+<!-- NEW LISTING MODAL -->
+<div class="modal-overlay" id="newListingModal">
+  <div class="modal">
+    <button class="close" onclick="closeModal('newListingModal')">×</button>
+    <h2>Yeni elan</h2>
+    <div class="field"><label>Başlıq</label><input id="nlTitle"></div>
+    <div class="field"><label>Təsvir</label><textarea id="nlDesc" rows="3"></textarea></div>
+    <div class="field"><label>Kateqoriya</label><select id="nlCategory"></select></div>
+    <div class="field"><label>Şəhər</label>
+      <select id="nlCity"><option>Bakı</option><option>Gəncə</option><option>Sumqayıt</option><option>Şəki</option><option>Lənkəran</option><option>Qəbələ</option><option>Quba</option><option>Naxçıvan</option><option>Digər</option></select>
+    </div>
+    <div class="field"><label>Qiymət (AZN)</label><input id="nlPrice" type="number"></div>
+    <div class="field"><label>Müddət</label><select id="nlPeriod"><option>günlük</option><option>həftəlik</option><option>aylıq</option></select></div>
+    <div class="field">
+      <label><input type="checkbox" id="nlPhonePublic"> Telefon nömrəm hər kəsə görünsün</label>
+    </div>
+    <div class="field"><label>Şəkillər (minimum 3)</label><input id="nlImages" type="file" multiple accept="image/*"></div>
+    <button class="btn btn-accent" onclick="submitListing()">Elanı yerləşdir</button>
+    <p id="nlError" style="color:var(--danger);font-size:.85rem;"></p>
+  </div>
+</div>
 
-        const userPanel = document.getElementById('userPanel');
-        const createAdSection = document.getElementById('createAdSection');
-        const adsContainer = document.getElementById('adsContainer');
-        const authModal = document.getElementById('authModal');
-        const authForm = document.getElementById('authForm');
-        const adForm = document.getElementById('adForm');
+<!-- LISTING DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <button class="close" onclick="closeModal('detailModal')">×</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
 
-        function updateUI() {
-            if (currentUser) {
-                userPanel.innerHTML = `
-                    <span>Salam, <b>${currentUser}</b></span>
-                    <button class="btn btn-danger" onclick="logout()">Çıxış</button>
-                `;
-                createAdSection.classList.remove('hidden');
-            } else {
-                userPanel.innerHTML = `
-                    <button class="btn btn-outline" onclick="toggleModal(true)">Giriş / Qeydiyyat</button>
-                `;
-                createAdSection.classList.add('hidden');
-            }
-            renderAds();
-        }
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal">
+    <button class="close" onclick="closeModal('profileModal')">×</button>
+    <div class="tabbar">
+      <button id="tabMyListings" class="btn active" onclick="switchProfileTab('mine')">Mənim elanlarım</button>
+      <button id="tabFavs" class="btn" onclick="switchProfileTab('favs')">Sevimlilər</button>
+    </div>
+    <div id="myListingsBox" class="mini-list"></div>
+    <div id="favsBox" class="mini-list hidden"></div>
+  </div>
+</div>
 
-        function toggleModal(show) {
-            if (show) {
-                authModal.classList.add('active');
-            } else {
-                authModal.classList.remove('active');
-            }
-        }
+<!-- VIP MODAL -->
+<div class="modal-overlay" id="vipModal">
+  <div class="modal">
+    <button class="close" onclick="closeModal('vipModal')">×</button>
+    <h2>Elanı önə çıxar (VIP)</h2>
+    <p style="color:var(--muted)">Ödəniş üsulu: bank/M10 köçürməsi. Köçürmə edin, sonra "Köçürdüm" düyməsinə basın — admin təsdiqindən sonra elanınız VIP olacaq.</p>
+    <p><b>Kart:</b> XXXX XXXX XXXX XXXX (öz nömrənizi bura yazın)</p>
+    <div class="mini-list">
+      <div class="mini-item"><span>1 gün — 1 AZN</span><button class="btn btn-vip" onclick="requestVip('1gun',1)">Köçürdüm</button></div>
+      <div class="mini-item"><span>1 həftə — 5 AZN</span><button class="btn btn-vip" onclick="requestVip('1hefte',5)">Köçürdüm</button></div>
+      <div class="mini-item"><span>1 ay — 15 AZN</span><button class="btn btn-vip" onclick="requestVip('1ay',15)">Köçürdüm</button></div>
+    </div>
+    <p id="vipMsg" style="color:var(--accent);"></p>
+  </div>
+</div>
 
-        // Giriş və ya Avtomatik Qeydiyyat (Sadəcə username və password)
-        authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('authUsername').value.trim();
-            const password = document.getElementById('authPassword').value.trim();
+<script>
+const SUPABASE_URL = 'https://vkfvdtjprwssyjsfwwqk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZnZkdGpwcndzc3lqc2Z3d3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2MzQ0NTEsImV4cCI6MjEwMDIxMDQ1MX0.x6F34deI3AXdd71EUsZj6IsdKc6E2IbBeqC_gxnjmsw';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const EMAIL_DOMAIN = '@kirayevar.local';
 
-            if (!username || !password) return;
+let currentUser = null, currentProfile = null, categories = [], vipTargetListing = null;
 
-            let user = users.find(u => u.username === username);
-            if (user) {
-                if (user.password === password) {
-                    currentUser = username;
-                } else {
-                    alert("Şifrə yanlışdır!");
-                    return;
-                }
-            } else {
-                // Əgər istifadəçi yoxdursa, avtomatik qeydiyyatdan keçir
-                users.push({ username, password });
-                localStorage.setItem('users', JSON.stringify(users));
-                currentUser = username;
-                alert("Uğurla qeydiyyatdan keçdiniz və daxil oldunuz!");
-            }
+// ---------- THEME ----------
+function setTheme(t){
+  localStorage.setItem('theme', t);
+  applyTheme(t);
+}
+function applyTheme(t){
+  if(t === 'system'){
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', sysDark ? 'dark' : 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', t);
+  }
+}
+(function initTheme(){
+  const saved = localStorage.getItem('theme') || 'light';
+  document.getElementById('themeSelect').value = saved;
+  applyTheme(saved);
+})();
 
-            localStorage.setItem('currentUser', currentUser);
-            toggleModal(false);
-            authForm.reset();
-            updateUI();
-        });
+// ---------- MODALS ----------
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function switchAuthTab(tab){
+  document.getElementById('loginForm').classList.toggle('hidden', tab!=='login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab!=='register');
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+}
+function switchProfileTab(tab){
+  document.getElementById('myListingsBox').classList.toggle('hidden', tab!=='mine');
+  document.getElementById('favsBox').classList.toggle('hidden', tab!=='favs');
+  document.getElementById('tabMyListings').classList.toggle('active', tab==='mine');
+  document.getElementById('tabFavs').classList.toggle('active', tab==='favs');
+  if(tab==='favs') loadFavorites();
+}
 
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            updateUI();
-        }
+// ---------- AUTH ----------
+async function doRegister(){
+  const username = document.getElementById('regUsername').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const phone = document.getElementById('regPhone').value.trim();
+  const contactMethod = document.getElementById('regContactMethod').value;
+  const errBox = document.getElementById('regError');
+  errBox.textContent = '';
+  if(!username || password.length < 6){ errBox.textContent = 'İstifadəçi adı və minimum 6 simvollu şifrə lazımdır.'; return; }
+  if(!/^\+994\d{9}$/.test(phone)){ errBox.textContent = 'Telefon formatı: +994501234567'; return; }
+  const { data, error } = await sb.auth.signUp({ email: username + EMAIL_DOMAIN, password });
+  if(error){ errBox.textContent = error.message; return; }
+  const { error: pErr } = await sb.from('profiles').insert({
+    id: data.user.id, username, phone, contact_method: contactMethod
+  });
+  if(pErr){ errBox.textContent = pErr.message; return; }
+  closeModal('authModal');
+  await refreshSession();
+}
+async function doLogin(){
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errBox = document.getElementById('loginError');
+  const { error } = await sb.auth.signInWithPassword({ email: username + EMAIL_DOMAIN, password });
+  if(error){ errBox.textContent = 'İstifadəçi adı və ya şifrə yanlışdır.'; return; }
+  closeModal('authModal');
+  await refreshSession();
+}
+async function doLogout(){
+  await sb.auth.signOut();
+  await refreshSession();
+}
+async function refreshSession(){
+  const { data: { user } } = await sb.auth.getUser();
+  currentUser = user;
+  if(user){
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+    currentProfile = profile;
+    document.getElementById('authArea').innerHTML =
+      '<button class="btn" onclick="openModal(\'profileModal\')">👤 ' + profile.username + '</button> ' +
+      '<button class="btn" onclick="doLogout()">Çıxış</button>';
+  } else {
+    currentProfile = null;
+    document.getElementById('authArea').innerHTML =
+      '<button class="btn" onclick="switchAuthTab(\'login\');openModal(\'authModal\')">Giriş</button> ' +
+      '<button class="btn btn-accent" onclick="switchAuthTab(\'register\');openModal(\'authModal\')">Qeydiyyat</button>';
+  }
+  loadListings();
+}
 
-        // Elan əlavə etmək (Nömrə tələbi məcburi deyil, amma elanda göstərilir)
-        adForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const title = document.getElementById('adTitle').value;
-            const desc = document.getElementById('adDesc').value;
-            const phone = document.getElementById('adPhone').value.trim();
+// ---------- CATEGORIES ----------
+async function loadCategories(){
+  const { data } = await sb.from('categories').select('*').order('id');
+  categories = data || [];
+  const fCat = document.getElementById('fCategory');
+  const nlCat = document.getElementById('nlCategory');
+  categories.forEach(c=>{
+    fCat.innerHTML += '<option value="'+c.id+'">'+c.name+'</option>';
+    nlCat.innerHTML += '<option value="'+c.id+'">'+c.name+'</option>';
+  });
+}
 
-            const newAd = {
-                id: Date.now(),
-                title,
-                desc,
-                phone: phone ? phone : "Qeyd olunmayıb",
-                author: currentUser
-            };
+// ---------- LISTINGS ----------
+async function loadListings(){
+  let q = sb.from('listings').select('*, categories(name)').order('is_vip', {ascending:false}).order('created_at', {ascending:false});
+  const cat = document.getElementById('fCategory').value;
+  const city = document.getElementById('fCity').value;
+  const period = document.getElementById('fPeriod').value;
+  const min = document.getElementById('fMin').value;
+  const max = document.getElementById('fMax').value;
+  const kw = document.getElementById('searchInput').value.trim();
+  if(cat) q = q.eq('category_id', cat);
+  if(city) q = q.eq('city', city);
+  if(period) q = q.eq('price_period', period);
+  if(min) q = q.gte('price', min);
+  if(max) q = q.lte('price', max);
+  if(kw) q = q.ilike('description', '%'+kw+'%');
+  const { data, error } = await q;
+  const grid = document.getElementById('listingsGrid');
+  if(error){ grid.innerHTML = '<p>Xəta: '+error.message+'</p>'; return; }
+  if(!data || !data.length){ grid.innerHTML = '<p style="color:var(--muted)">Nəticə tapılmadı.</p>'; return; }
+  grid.innerHTML = data.map(l => renderCard(l)).join('');
+}
+function renderCard(l){
+  const img = (l.image_urls && l.image_urls[0]) || 'https://placehold.co/400x300?text=Şəkil+yoxdur';
+  return '<div class="listing-card" onclick="openDetail(\''+l.id+'\')">' +
+    (l.is_vip ? '<span class="vip-badge">VIP</span>' : '') +
+    '<button class="fav-btn" onclick="event.stopPropagation();toggleFavorite(\''+l.id+'\')">♥</button>' +
+    '<img src="'+img+'">' +
+    '<div class="card-divider"></div>' +
+    '<div class="card-body">' +
+      '<h3>'+escapeHtml(l.title)+'</h3>' +
+      '<div class="card-meta">'+(l.categories?.name||'')+' · '+l.city+'</div>' +
+      '<div class="card-price price">'+l.price+' AZN / '+l.price_period+'</div>' +
+    '</div></div>';
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
-            ads.unshift(newAd);
-            localStorage.setItem('ads', JSON.stringify(ads));
-            adForm.reset();
-            renderAds();
-        });
+async function openDetail(id){
+  const { data: l } = await sb.from('listings').select('*, categories(name), profiles(username, phone, contact_method)').eq('id', id).single();
+  if(!l) return;
+  const imgs = (l.image_urls||[]).map(u=>'<img src="'+u+'">').join('');
+  let contactHtml = '';
+  const phone = l.profiles?.phone;
+  const method = l.profiles?.contact_method;
+  const cleanPhone = phone ? phone.replace('+','') : '';
+  if(phone){
+    const link = method === 'whatsapp' ? 'https://wa.me/'+cleanPhone : 'tel:'+phone;
+    contactHtml = '<a href="'+link+'" target="_blank"><button class="btn btn-accent">'+(method==='whatsapp'?'💬 WhatsApp':'📞 Zəng et')+'</button></a>';
+    if(l.phone_public){ contactHtml += ' <span class="price">'+phone+'</span>'; }
+  }
+  document.getElementById('detailContent').innerHTML =
+    '<h2>'+escapeHtml(l.title)+(l.is_vip?' <span class="vip-badge" style="position:static;">VIP</span>':'')+'</h2>' +
+    '<div class="detail-imgs">'+imgs+'</div>' +
+    '<p>'+escapeHtml(l.description)+'</p>' +
+    '<p class="card-meta">'+(l.categories?.name||'')+' · '+l.city+'</p>' +
+    '<p class="price" style="font-size:1.2rem;">'+l.price+' AZN / '+l.price_period+'</p>' +
+    contactHtml;
+  openModal('detailModal');
+}
 
-        function renderAds() {
-            if (ads.length === 0) {
-                adsContainer.innerHTML = `<p>Hələ ki, heç bir elan yoxdur.</p>`;
-                return;
-            }
+// ---------- FAVORITES ----------
+async function toggleFavorite(listingId){
+  if(!currentUser){ openModal('authModal'); return; }
+  const { data: existing } = await sb.from('favorites').select('*').eq('user_id', currentUser.id).eq('listing_id', listingId).maybeSingle();
+  if(existing){
+    await sb.from('favorites').delete().eq('user_id', currentUser.id).eq('listing_id', listingId);
+  } else {
+    await sb.from('favorites').insert({ user_id: currentUser.id, listing_id: listingId });
+  }
+}
+async function loadFavorites(){
+  const { data } = await sb.from('favorites').select('listings(*, categories(name))').eq('user_id', currentUser.id);
+  const box = document.getElementById('favsBox');
+  if(!data || !data.length){ box.innerHTML = '<p style="color:var(--muted)">Sevimli elan yoxdur.</p>'; return; }
+  box.innerHTML = data.map(f=>{
+    const l = f.listings;
+    return '<div class="mini-item"><span>'+escapeHtml(l.title)+' — '+l.price+' AZN</span><button class="btn" onclick="closeModal(\'profileModal\');openDetail(\''+l.id+'\')">Bax</button></div>';
+  }).join('');
+}
 
-            adsContainer.innerHTML = ads.map(ad => `
-                <div class="ad-card">
-                    <div>
-                        <div class="ad-title">${escapeHtml(ad.title)}</div>
-                        <div class="ad-desc">${escapeHtml(ad.desc)}</div>
-                    </div>
-                    <div class="ad-footer">
-                        <span>İstifadəçi: <b>${escapeHtml(ad.author)}</b></span>
-                        <span class="ad-phone">📞 ${escapeHtml(ad.phone)}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
+// ---------- MY LISTINGS ----------
+async function loadMyListings(){
+  if(!currentUser) return;
+  const { data } = await sb.from('listings').select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false});
+  const box = document.getElementById('myListingsBox');
+  if(!data || !data.length){ box.innerHTML = '<p style="color:var(--muted)">Hələ elanınız yoxdur.</p>'; return; }
+  box.innerHTML = data.map(l=>
+    '<div class="mini-item"><span>'+escapeHtml(l.title)+(l.is_vip?' ⭐VIP':'')+'</span>' +
+    '<span><button class="btn" onclick="closeModal(\'profileModal\');openDetail(\''+l.id+'\')">Bax</button> ' +
+    '<button class="btn btn-vip" onclick="openVipModal(\''+l.id+'\')">VIP et</button></span></div>'
+  ).join('');
+}
 
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
+// ---------- VIP ----------
+function openVipModal(listingId){ vipTargetListing = listingId; document.getElementById('vipMsg').textContent=''; openModal('vipModal'); }
+async function requestVip(plan, amount){
+  await sb.from('vip_requests').insert({ listing_id: vipTargetListing, user_id: currentUser.id, plan, amount });
+  document.getElementById('vipMsg').textContent = 'Tələb göndərildi. Admin təsdiqindən sonra elan VIP olacaq.';
+}
 
-        // İlkin yüklənmə
-        updateUI();
-    </script>
+// ---------- NEW LISTING ----------
+function openNewListing(){
+  if(!currentUser){ openModal('authModal'); return; }
+  openModal('newListingModal');
+}
+async function submitListing(){
+  const errBox = document.getElementById('nlError');
+  errBox.textContent = '';
+  const title = document.getElementById('nlTitle').value.trim();
+  const desc = document.getElementById('nlDesc').value.trim();
+  const category_id = document.getElementById('nlCategory').value;
+  const city = document.getElementById('nlCity').value;
+  const price = document.getElementById('nlPrice').value;
+  const price_period = document.getElementById('nlPeriod').value;
+  const phone_public = document.getElementById('nlPhonePublic').checked;
+  const files = document.getElementById('nlImages').files;
+  if(!title || !desc || !city || !price){ errBox.textContent = 'Bütün sahələri doldurun.'; return; }
+  if(files.length < 3){ errBox.textContent = 'Minimum 3 şəkil yükləməlisiniz.'; return; }
+  errBox.textContent = 'Yüklənir...';
+  const urls = [];
+  for(const file of files){
+    const path = currentUser.id + '/' + Date.now() + '-' + file.name;
+    const { error: upErr } = await sb.storage.from('listing-images').upload(path, file);
+    if(upErr){ errBox.textContent = 'Şəkil xətası: '+upErr.message; return; }
+    const { data: pub } = sb.storage.from('listing-images').getPublicUrl(path);
+    urls.push(pub.publicUrl);
+  }
+  const { error } = await sb.from('listings').insert({
+    user_id: currentUser.id, title, description: desc, category_id, city,
+    price, price_period, phone_public, image_urls: urls
+  });
+  if(error){ errBox.textContent = error.message; return; }
+  closeModal('newListingModal');
+  loadListings();
+}
+
+// ---------- PROFILE MODAL HOOK ----------
+document.getElementById('profileModal').addEventListener('transitionend', ()=>{});
+const origOpenModal = openModal;
+openModal = function(id){
+  origOpenModal(id);
+  if(id === 'profileModal'){ loadMyListings(); }
+};
+
+// ---------- INIT ----------
+(async function init(){
+  await loadCategories();
+  await refreshSession();
+})();
+</script>
 </body>
 </html>
+EOF
