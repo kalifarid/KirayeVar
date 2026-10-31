@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="az" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirayevar.az – Rəqəmsal İcarə Ekosistemi</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        accent: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        darkbg: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom UI enhancements and animations */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .vip-card-border {
+            position: relative;
+            background: linear-gradient(135deg, #f59e0b, #ef4444, #10b981);
+            padding: 2px;
+            border-radius: 1rem;
+        }
+        .vip-badge-shine {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-darkbg-900 text-gray-800 dark:text-gray-100 font-sans transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- APP HEADER -->
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-darkbg-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            
+            <!-- Logo -->
+            <a href="#" onclick="resetFilters(); return false;" class="flex items-center gap-2 group">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-key text-xl"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-heading font-extrabold text-2xl tracking-tight text-gray-900 dark:text-white flex items-center gap-1">
+                        Kirayevar<span class="text-brand-500">.az</span>
+                    </span>
+                    <span class="text-[10px] text-gray-500 dark:text-gray-400 font-medium tracking-wider uppercase -mt-1">İcarə Ekosistemi</span>
+                </div>
+            </a>
+
+            <!-- Search Quick Input (Desktop) -->
+            <div class="hidden md:flex items-center flex-1 max-w-md mx-4 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 text-gray-400"></i>
+                <input type="text" id="headerSearchInput" onkeyup="handleQuickSearch(event)" placeholder="Nə icarəyə götürmək istəyirsiniz? (mənzil, maşın, alət...)" 
+                    class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white transition">
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                
+                <!-- Theme Switcher Menu -->
+                <div class="relative inline-block text-left" id="themeMenuContainer">
+                    <button onclick="toggleThemeDropdown()" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-darkbg-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition">
+                        <i id="themeIcon" class="fa-solid fa-sun"></i>
+                    </button>
+                    <!-- Theme Dropdown -->
+                    <div id="themeDropdown" class="hidden absolute right-0 mt-2 w-36 bg-white dark:bg-darkbg-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50 text-sm">
+                        <button onclick="setTheme('light')" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-darkbg-700 flex items-center gap-2 text-gray-700 dark:text-gray-200">
+                            <i class="fa-solid fa-sun text-amber-500 w-4"></i> Ağ
+                        </button>
+                        <button onclick="setTheme('dark')" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-darkbg-700 flex items-center gap-2 text-gray-700 dark:text-gray-200">
+                            <i class="fa-solid fa-moon text-indigo-400 w-4"></i> Qaranlıq
+                        </button>
+                        <button onclick="setTheme('system')" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-darkbg-700 flex items-center gap-2 text-gray-700 dark:text-gray-200">
+                            <i class="fa-solid fa-desktop text-gray-400 w-4"></i> Sistem
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Favorites Button -->
+                <button onclick="openFavoritesModal()" class="relative p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition flex items-center gap-2 font-medium text-sm">
+                    <i class="fa-solid fa-heart text-base"></i>
+                    <span class="hidden sm:inline">Sevimlilər</span>
+                    <span id="favCountBadge" class="bg-red-600 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">0</span>
+                </button>
+
+                <!-- Auth Buttons / User Profile -->
+                <div id="authContainer">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+
+                <!-- Post Ad Button -->
+                <button onclick="startPostAdFlow()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm shadow-md shadow-brand-600/30 flex items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-circle-plus text-base"></i>
+                    <span class="hidden md:inline">Elan Yerləşdir</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO / BANNER & SEARCH SECTION -->
+    <section class="relative bg-gradient-to-b from-brand-500/10 via-transparent to-transparent pt-8 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto text-center space-y-4">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300 font-semibold text-xs tracking-wide uppercase">
+                <i class="fa-solid fa-bolt"></i> Azərbaycanın Bütün İcarə Təklifləri Tək Məkanda
+            </span>
+            <h1 class="font-heading text-3xl sm:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
+                Hər şeyi almağa ehtiyac yoxdur. <br class="hidden sm:inline"><span class="text-brand-600 dark:text-brand-500">İcarəyə götürün!</span>
+            </h1>
+            <p class="text-gray-600 dark:text-gray-300 text-sm sm:text-base max-w-2xl mx-auto">
+                Mənzillər, avtomobillər, peşəkar tikinti alətləri və gündəlik əşyalar. Sürətli, birbaşa və vasitəçisiz icarə imkanı.
+            </p>
+
+            <!-- MAIN FILTER CARD -->
+            <div class="mt-8 bg-white dark:bg-darkbg-800 rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-100 dark:border-gray-700 text-left space-y-4">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <!-- Category Select -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Kateqoriya</label>
+                        <select id="filterCategory" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                            <option value="">Bütün Kateqoriyalar</option>
+                            <option value="MənzilvəHəyətevi">Mənzil / Həyət evi</option>
+                            <option value="Avtomobil">Avtomobil / Nəqliyyat</option>
+                            <option value="TikintivəAlətlər">Tikinti və Alətlər</option>
+                            <option value="Elektronika">Elektronika və Məişət</option>
+                            <option value="GeyimvəTədbir">Geyim və Tədbir</option>
+                            <option value="Digər">Digər</option>
+                        </select>
+                    </div>
+
+                    <!-- City Select -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Şəhər / Məkan</label>
+                        <select id="filterCity" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                            <option value="">Bütün Şəhərlər</option>
+                            <option value="Bakı">Bakı</option>
+                            <option value="Sumqayıt">Sumqayıt</option>
+                            <option value="Gəncə">Gəncə</option>
+                            <option value="Xırdalan">Xırdalan</option>
+                            <option value="Qəbələ">Qəbələ</option>
+                            <option value="Şəki">Şəki</option>
+                        </select>
+                    </div>
+
+                    <!-- Duration Select -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">İcarə Müddəti</label>
+                        <select id="filterDuration" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                            <option value="">Hər bir müddət</option>
+                            <option value="Saatlıq">Saatlıq</option>
+                            <option value="Günlük">Günlük</option>
+                            <option value="Həftəlik">Həftəlik</option>
+                            <option value="Aylıq">Aylıq</option>
+                        </select>
+                    </div>
+
+                    <!-- Price Min - Max -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Qiymət Aralığı (AZN)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="filterMinPrice" placeholder="Min" class="w-1/2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                            <span class="text-gray-400">-</span>
+                            <input type="number" id="filterMaxPrice" placeholder="Max" class="w-1/2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <div class="w-full sm:w-auto flex items-center gap-2">
+                        <input type="text" id="filterKeyword" placeholder="Açar söz (məs: DeWalt, 3 otaqlı...)" class="w-full sm:w-72 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                    </div>
+                    <div class="w-full sm:w-auto flex items-center gap-2">
+                        <button onclick="resetFilters()" class="w-1/2 sm:w-auto px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Sıfırla
+                        </button>
+                        <button onclick="applyFilters()" class="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm shadow-md shadow-brand-600/30 flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-filter"></i> Axtar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-12">
+        
+        <!-- SECTION 1: VIP ELANLAR (VIP LISTINGS) -->
+        <section id="vipSection" class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-8 bg-amber-500 rounded-full inline-block"></span>
+                    <h2 class="font-heading text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        VIP Elanlar 
+                        <span class="text-xs px-2.5 py-0.5 rounded-full vip-badge-shine text-black font-extrabold uppercase shadow-sm">Xüsusi Seçilmiş</span>
+                    </h2>
+                </div>
+            </div>
+
+            <!-- VIP Grid -->
+            <div id="vipListingsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- SECTION 2: STANDART ELANLAR (STANDARD LISTINGS) -->
+        <section class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-700 pb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-8 bg-brand-500 rounded-full inline-block"></span>
+                    <h2 class="font-heading text-2xl font-bold text-gray-900 dark:text-white">
+                        Bütün Elanlar <span id="resultsCount" class="text-sm font-normal text-gray-500 dark:text-gray-400">(0 elan tapıldı)</span>
+                    </h2>
+                </div>
+
+                <!-- Sort option -->
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-gray-500 dark:text-gray-400 font-medium">Sıralama:</label>
+                    <select id="sortBy" onchange="renderListings()" class="bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 focus:outline-none">
+                        <option value="newest">Ən yenilər</option>
+                        <option value="priceLow">Qiymət: Ucuzdan baha</option>
+                        <option value="priceHigh">Qiymət: Bahadan ucuza</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Standard Grid -->
+            <div id="standardListingsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16 space-y-4">
+                <div class="w-20 h-20 bg-gray-100 dark:bg-darkbg-800 rounded-full flex items-center justify-center mx-auto text-gray-400 text-3xl">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Axtarışınıza uyğun elan tapılmadı</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">Filtrləri dəyişdirərək daha geniş axtarış edə və ya yenidən cəhd edə bilərsiniz.</p>
+                <button onclick="resetFilters()" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-medium">Filtrləri Sıfırla</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BANNER AD SECTION (FOOTER BOTTOM NON-INTRUSIVE BANNERS) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="p-4 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-darkbg-800 dark:to-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-center flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-rectangle-ad"></i>
+                </div>
+                <div class="text-left">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded">Tərəfdaş Reklamı</span>
+                    <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200">Avtoİcarə Bakı – VIP Nəqliyyat Xidmətləri</h4>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 max-w-md">Ən son model biznes klass avtomobillərin günlük və aylıq kirayəsi. Özel endirim kodunuz: <span class="font-mono font-bold text-brand-600">KIRAYEVAR10</span></p>
+            <a href="#" onclick="alert('Reklam keçidi simulyasiyası'); return false;" class="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl text-xs font-bold hover:opacity-90 transition whitespace-nowrap">Ətraflı Bax</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-darkbg-800 border-t border-gray-200 dark:border-gray-700 py-8 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400">
+            <div class="flex items-center gap-2">
+                <span class="font-heading font-bold text-gray-800 dark:text-white text-sm">Kirayevar.az</span>
+                <span>&copy; 2026 Bütün hüquqlar qorunur. Rəqəmsal İcarə Ekosistemi.</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="#" onclick="alert('ŞərtlərvəQaydalar'); return false;" class="hover:underline">Şərtlər və Qaydalar</a>
+                <a href="#" onclick="alert('MəxfilikSiyasəti'); return false;" class="hover:underline">Məxfilik Siyasəti</a>
+                <a href="#" onclick="alert('Əlaqə: support@kirayevar.az'); return false;" class="hover:underline">Əlaqə</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALS CONTAINER -->
+
+    <!-- 1. AUTH MODAL (LOGIN / REGISTER) -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkbg-800 w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 space-y-6 relative animate-fade-in">
+            <button onclick="closeModal('authModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="text-center space-y-1">
+                <h3 id="authModalTitle" class="font-heading text-2xl font-bold text-gray-900 dark:text-white">Hesaba Giriş</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Davam etmək üçün istifadəçi adı və şifrənizi daxil edin.</p>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex bg-gray-100 dark:bg-gray-900 p-1 rounded-xl text-xs font-semibold">
+                <button id="loginTabBtn" onclick="switchAuthTab('login')" class="w-1/2 py-2 rounded-lg bg-white dark:bg-darkbg-800 text-gray-900 dark:text-white shadow-sm transition">Giriş</button>
+                <button id="registerTabBtn" onclick="switchAuthTab('register')" class="w-1/2 py-2 rounded-lg text-gray-500 dark:text-gray-400 transition">Qeydiyyat</button>
+            </div>
+
+            <!-- Auth Form -->
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">İstifadəçi Adı (Username)</label>
+                    <input type="text" id="authUsername" required placeholder="məs: elnur_99" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Şifrə</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                </div>
+
+                <div id="authError" class="hidden text-xs text-red-500 bg-red-50 dark:bg-red-950/40 p-2 rounded-lg"></div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 rounded-xl text-sm shadow-md shadow-brand-600/30 transition">
+                    Daxil Ol
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. OTP VERIFICATION MODAL -->
+    <div id="otpModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkbg-800 w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 space-y-6 relative">
+            <button onclick="closeModal('otpModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-amber-100 dark:bg-amber-950/60 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="font-heading text-xl font-bold text-gray-900 dark:text-white">Nömrə Təsdiqi Tələb Olunur</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">İlk dəfə elan yerləşdirdiyiniz üçün telefon nömrənizi 1 dəfəlik SMS kodu ilə təsdiq etməlisiniz.</p>
+            </div>
+
+            <div id="otpStep1" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Mobil Nömrəniz</label>
+                    <div class="flex gap-2">
+                        <span class="bg-gray-100 dark:bg-gray-900 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center">+994</span>
+                        <input type="tel" id="otpPhoneInput" placeholder="50 123 45 67" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                    </div>
+                </div>
+                <button onclick="sendOtpCode()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-xl text-sm transition">
+                    SMS Kod Göndər
+                </button>
+            </div>
+
+            <div id="otpStep2" class="hidden space-y-4">
+                <p class="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl text-center font-medium">
+                    <i class="fa-solid fa-circle-check"></i> Kod nömrənizə göndərildi (Simulyasiya kodu: <span class="font-bold underline">1234</span>)
+                </p>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">4-rəqəmli SMS Kod</label>
+                    <input type="text" id="otpCodeInput" maxlength="4" placeholder="1234" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-center text-xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                </div>
+                <button onclick="verifyOtpCode()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-xl text-sm transition">
+                    Təsdiqlə və Davam Et
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. POST AD MODAL (ELAN YERLƏŞDİR) -->
+    <div id="postAdModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-darkbg-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 space-y-6 relative my-8 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('postAdModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="text-center space-y-1">
+                <h3 class="font-heading text-2xl font-bold text-gray-900 dark:text-white">Yeni İcarə Elanı Yerləşdir</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Məlumatları daxil edərək elanınızı operativ şəkildə dərc edin.</p>
+            </div>
+
+            <form id="postAdForm" onsubmit="handlePostAdSubmit(event)" class="space-y-4">
+                
+                <!-- Title -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Elan Başlığı *</label>
+                    <input type="text" id="adTitle" required placeholder="məs: 2 otaqlı təmirli mənzil və ya Bosch Perforator" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                </div>
+
+                <!-- Category & City -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Kateqoriya *</label>
+                        <select id="adCategory" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                            <option value="MənzilvəHəyətevi">Mənzil / Həyət evi</option>
+                            <option value="Avtomobil">Avtomobil / Nəqliyyat</option>
+                            <option value="TikintivəAlətlər">Tikinti və Alətlər</option>
+                            <option value="Elektronika">Elektronika və Məişət</option>
+                            <option value="GeyimvəTədbir">Geyim və Tədbir</option>
+                            <option value="Digər">Digər</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Şəhər / Məkan *</label>
+                        <select id="adCity" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                            <option value="Bakı">Bakı</option>
+                            <option value="Sumqayıt">Sumqayıt</option>
+                            <option value="Gəncə">Gəncə</option>
+                            <option value="Xırdalan">Xırdalan</option>
+                            <option value="Qəbələ">Qəbələ</option>
+                            <option value="Şəki">Şəki</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Price & Duration -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Qiymət (AZN) *</label>
+                        <input type="number" id="adPrice" min="1" required placeholder="məs: 50" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">İcarə Müddəti *</label>
+                        <select id="adDuration" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+                            <option value="Günlük">Günlük</option>
+                            <option value="Aylıq">Aylıq</option>
+                            <option value="Saatlıq">Saatlıq</option>
+                            <option value="Həftəlik">Həftəlik</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Ətraflı Təsvir *</label>
+                    <textarea id="adDescription" rows="3" required placeholder="Əşya və ya əmlakın vəziyyəti, şərtləri haqqında məlumat..." class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white"></textarea>
+                </div>
+
+                <!-- Photos Upload Simulation (Min 3 required) -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        Fotoşəkillər (Minimum 3 Şəkil Tələb Olunur) *
+                    </label>
+                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-4 text-center bg-gray-50 dark:bg-gray-900 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition" onclick="triggerPhotoUpload()">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-brand-500 mb-1"></i>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Şəkilləri seçin və ya bura sürükləyin</p>
+                        <span class="text-[10px] text-gray-400">Yüklənmiş şəkillər: <span id="photoCountText" class="font-bold text-brand-600">0 / 3</span></span>
+                    </div>
+                    <div id="photoPreviews" class="flex gap-2 overflow-x-auto py-2">
+                        <!-- Simulated photo thumbs -->
+                    </div>
+                </div>
+
+                <!-- Contact Preference & Number Privacy -->
+                <div class="bg-gray-50 dark:bg-gray-900/80 p-4 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Əlaqə Tənzimləmələri</h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Üstünlük verdiyiniz əlaqə kanalı:</label>
+                            <select id="adContactChannel" class="w-full bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-xs font-medium dark:text-white">
+                                <option value="WhatsApp">WhatsApp ilə Yazışma</option>
+                                <option value="Zəng">Birbaşa Zəng</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Nömrəniz public olsun?</label>
+                            <div class="flex items-center gap-4 pt-1">
+                                <label class="inline-flex items-center text-xs font-medium text-gray-700 dark:text-gray-300">
+                                    <input type="radio" name="isPublicNumber" value="true" checked class="text-brand-600 focus:ring-brand-500">
+                                    <span class="ml-1.5">Bəli (Açıq)</span>
+                                </label>
+                                <label class="inline-flex items-center text-xs font-medium text-gray-700 dark:text-gray-300">
+                                    <input type="radio" name="isPublicNumber" value="false" class="text-brand-600 focus:ring-brand-500">
+                                    <span class="ml-1.5">Xeyr (Gizli)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monetization / Boost Package -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        Elan Səviyyəsi və İrəli Çəkmə (VIP)
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <label class="border border-gray-200 dark:border-gray-700 p-2.5 rounded-xl cursor-pointer hover:border-brand-500 flex flex-col items-center text-center transition">
+                            <input type="radio" name="boostPlan" value="free" checked class="mb-1 text-brand-600">
+                            <span class="text-xs font-bold text-gray-800 dark:text-gray-200">Sadə Elan</span>
+                            <span class="text-[10px] text-gray-500">Pulsuz</span>
+                        </label>
+                        <label class="border border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/30 p-2.5 rounded-xl cursor-pointer hover:border-amber-500 flex flex-col items-center text-center transition">
+                            <input type="radio" name="boostPlan" value="vip1" class="mb-1 text-amber-500">
+                            <span class="text-xs font-bold text-amber-600 dark:text-amber-400">VIP 1 Gün</span>
+                            <span class="text-[10px] text-amber-700 dark:text-amber-300 font-bold">1 AZN</span>
+                        </label>
+                        <label class="border border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/30 p-2.5 rounded-xl cursor-pointer hover:border-amber-500 flex flex-col items-center text-center transition">
+                            <input type="radio" name="boostPlan" value="vip7" class="mb-1 text-amber-500">
+                            <span class="text-xs font-bold text-amber-600 dark:text-amber-400">VIP 1 Həftə</span>
+                            <span class="text-[10px] text-amber-700 dark:text-amber-300 font-bold">5 AZN</span>
+                        </label>
+                        <label class="border border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/30 p-2.5 rounded-xl cursor-pointer hover:border-amber-500 flex flex-col items-center text-center transition">
+                            <input type="radio" name="boostPlan" value="vip30" class="mb-1 text-amber-500">
+                            <span class="text-xs font-bold text-amber-600 dark:text-amber-400">VIP 1 Ay</span>
+                            <span class="text-[10px] text-amber-700 dark:text-amber-300 font-bold">15 AZN</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="postAdError" class="hidden text-xs text-red-500 bg-red-50 dark:bg-red-950/40 p-2 rounded-lg"></div>
+
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-brand-600/30 transition">
+                    Elanı Dərc Et
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. AD DETAIL MODAL -->
+    <div id="adDetailModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-darkbg-800 w-full max-w-3xl rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 space-y-6 relative my-8 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('adDetailModal')" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/40 text-white hover:bg-black/60 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div id="adDetailContent" class="space-y-6">
+                <!-- Dynamically filled -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. FAVORITES MODAL -->
+    <div id="favoritesModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkbg-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 space-y-6 relative max-h-[85vh] overflow-y-auto">
+            <button onclick="closeModal('favoritesModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="flex items-center gap-2 border-b border-gray-100 dark:border-gray-700 pb-3">
+                <i class="fa-solid fa-heart text-red-500 text-xl"></i>
+                <h3 class="font-heading text-xl font-bold text-gray-900 dark:text-white">Sevimlilər Paneli</h3>
+            </div>
+
+            <div id="favoritesList" class="space-y-3">
+                <!-- Dynamically rendered -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. USER PROFILE / SETTINGS MODAL -->
+    <div id="profileModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkbg-800 w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 space-y-6 relative">
+            <button onclick="closeModal('profileModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 rounded-full bg-brand-100 dark:bg-brand-900/60 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto text-2xl font-bold">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <h3 id="profileUsernameDisplay" class="font-heading text-xl font-bold text-gray-900 dark:text-white">İstifadəçi</h3>
+                <span id="otpStatusBadge" class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+                    Nömrə Təsdiqlənməyib
+                </span>
+            </div>
+
+            <div class="space-y-4 text-sm border-t border-b border-gray-100 dark:border-gray-700 py-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Üstünlük verilən əlaqə:</span>
+                    <select id="profilePreferredContact" onchange="updateProfileSettings()" class="bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1 text-xs text-gray-800 dark:text-gray-200">
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Zəng">Birbaşa Zəng</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="logoutUser()" class="w-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 font-medium py-2.5 rounded-xl text-sm hover:bg-red-100 transition">
+                Hesabdan Çıx
+            </button>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT LOGIC & STATE MANAGEMENT -->
+    <script>
+        /* ----------------------------------------------------
+           APPLICATION STATE & INITIAL MOCK DATA
+        ---------------------------------------------------- */
+        
+        let currentUser = JSON.parse(localStorage.getItem('kirayevar_user')) || null;
+        let favorites = JSON.parse(localStorage.getItem('kirayevar_favs')) || [];
+        let uploadedPhotos = []; // Photo upload simulation tracker
+
+        // Initial realistic Azerbaijani rental listings
+        const initialListings = [
+            {
+                id: 101,
+                title: "Nərimanovda 3 Otaqlı Lüks Təmirli Mənzil",
+                category: "MənzilvəHəyətevi",
+                city: "Bakı",
+                price: 850,
+                duration: "Aylıq",
+                isVip: true,
+                description: "Nərimanov metrosuna 5 dəqiqəlik məsafədə. Tam əşyalı, kombi sistemi, internet, bütün məişət texnikası mövcuddur. Ailəyə verilir.",
+                phone: "+994 50 211 34 56",
+                isPublicNumber: true,
+                contactChannel: "WhatsApp",
+                seller: "Aydın_M",
+                date: "2026-10-20",
+                images: [
+                    "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: 102,
+                title: "Hyundai Elantra 2021 (Sürücüsüz İcarə)",
+                category: "Avtomobil",
+                city: "Bakı",
+                price: 65,
+                duration: "Günlük",
+                isVip: true,
+                description: "Səliqəli və ekonom avtomobil. Depozitsiz, minimum 2 günlük verilir. Sığorta kasko var.",
+                phone: "+994 55 980 12 34",
+                isPublicNumber: false, // Hidden number example
+                contactChannel: "WhatsApp",
+                seller: "RentCar_Baku",
+                date: "2026-10-22",
+                images: [
+                    "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: 103,
+                title: "DeWalt Peşəkar Perforator və Drel Dəsti",
+                category: "TikintivəAlətlər",
+                city: "Sumqayıt",
+                price: 25,
+                duration: "Günlük",
+                isVip: true,
+                description: "Güclü DeWalt 800W perforator. Betonda və kərpicdə deşmə işləri üçün ideal. Başlıqlar komplektə daxildir.",
+                phone: "+994 70 333 44 55",
+                isPublicNumber: true,
+                contactChannel: "Zəng",
+                seller: "Usta_Ramil",
+                date: "2026-10-23",
+                images: [
+                    "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: 104,
+                title: "Sony Alpha A7 III Fotoaparat və Linza",
+                category: "Elektronika",
+                city: "Bakı",
+                price: 90,
+                duration: "Günlük",
+                isVip: false,
+                description: "Çəkilişlər, toy və tədbirlər üçün ideal 4K full-frame kamera. 24-70mm linza və 2 ədəd batareya ilə birlikdə.",
+                phone: "+994 51 444 88 99",
+                isPublicNumber: false,
+                contactChannel: "WhatsApp",
+                seller: "MediaRent_AZ",
+                date: "2026-10-18",
+                images: [
+                    "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: 105,
+                title: "Qəbələdə Hovuzlu Şalye Təbiət Evi",
+                category: "MənzilvəHəyətevi",
+                city: "Qəbələ",
+                price: 180,
+                duration: "Günlük",
+                isVip: fontVipCheck(true),
+                description: "Meşə kənarında istilik sistemli, filterli hovuzlu, mangal zonası olan lüks şalye villa.",
+                phone: "+994 50 777 00 11",
+                isPublicNumber: true,
+                contactChannel: "WhatsApp",
+                seller: "Gabala_Resort",
+                date: "2026-10-24",
+                images: [
+                    "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: 106,
+                title: "Gəlinlik Donu və Aksessuarlar (Özəl Dizayn)",
+                category: "GeyimvəTədbir",
+                city: "Gəncə",
+                price: 250,
+                duration: "Günlük",
+                isVip: false,
+                description: "1 dəfə geyinilib, kimyəvi təmizləmədən keçib. İdeal vəziyyətdə Fransız krujevalı gəlinlik.",
+                phone: "+994 55 600 70 80",
+                isPublicNumber: true,
+                contactChannel: "Zəng",
+                seller: "Ganja_Bridal",
+                date: "2026-10-15",
+                images: [
+                    "https://images.unsplash.com/photo-1594552072238-b8a33785b261?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1546804784-896d0d51720b?auto=format&fit=crop&w=800&q=80"
+                ]
+            }
+        ];
+
+        function fontVipCheck(v) { return v; }
+
+        let allListings = JSON.parse(localStorage.getItem('kirayevar_listings')) || initialListings;
+
+        /* ----------------------------------------------------
+           INIT APPLICATION ON LOAD
+        ---------------------------------------------------- */
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            renderAuthUI();
+            renderListings();
+            updateFavCount();
+        });
+
+        /* ----------------------------------------------------
+           THEME SWITCHER LOGIC
+        ---------------------------------------------------- */
+        function initTheme() {
+            const savedTheme = localStorage.getItem('kirayevar_theme') || 'system';
+            setTheme(savedTheme, false);
+        }
+
+        function toggleThemeDropdown() {
+            document.getElementById('themeDropdown').classList.toggle('hidden');
+        }
+
+        // Close theme menu if clicked outside
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('themeMenuContainer');
+            if (container && !container.contains(e.target)) {
+                document.getElementById('themeDropdown').classList.add('hidden');
+            }
+        });
+
+        function setTheme(theme, save = true) {
+            if (save) localStorage.setItem('kirayevar_theme', theme);
+            const icon = document.getElementById('themeIcon');
+
+            if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                icon.className = 'fa-solid fa-moon text-indigo-400';
+            } else {
+                document.documentElement.classList.remove('dark');
+                icon.className = 'fa-solid fa-sun text-amber-500';
+            }
+            document.getElementById('themeDropdown').classList.add('hidden');
+        }
+
+        /* ----------------------------------------------------
+           AUTHENTICATION ENGINE
+        ---------------------------------------------------- */
+        let currentAuthTab = 'login';
+
+        function renderAuthUI() {
+            const container = document.getElementById('authContainer');
+            if (currentUser) {
+                container.innerHTML = `
+                    <button onclick="openProfileModal()" class="flex items-center gap-2 bg-gray-100 dark:bg-darkbg-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-xl transition text-sm font-medium">
+                        <i class="fa-solid fa-user-check text-brand-600"></i>
+                        <span class="max-w-[100px] truncate">${currentUser.username}</span>
+                    </button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="openAuthModal('login')" class="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 transition">
+                        Giriş / Qeydiyyat
+                    </button>
+                `;
+            }
+        }
+
+        function openAuthModal(tab = 'login') {
+            switchAuthTab(tab);
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            currentAuthTab = tab;
+            const loginBtn = document.getElementById('loginTabBtn');
+            const regBtn = document.getElementById('registerTabBtn');
+            const title = document.getElementById('authModalTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const err = document.getElementById('authError');
+            err.classList.add('hidden');
+
+            if (tab === 'login') {
+                loginBtn.className = 'w-1/2 py-2 rounded-lg bg-white dark:bg-darkbg-800 text-gray-900 dark:text-white shadow-sm transition';
+                regBtn.className = 'w-1/2 py-2 rounded-lg text-gray-500 dark:text-gray-400 transition';
+                title.innerText = 'Hesaba Giriş';
+                submitBtn.innerText = 'Daxil Ol';
+            } else {
+                regBtn.className = 'w-1/2 py-2 rounded-lg bg-white dark:bg-darkbg-800 text-gray-900 dark:text-white shadow-sm transition';
+                loginBtn.className = 'w-1/2 py-2 rounded-lg text-gray-500 dark:text-gray-400 transition';
+                title.innerText = 'Sürətli Qeydiyyat';
+                submitBtn.innerText = 'Hesab Yarat';
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+            const err = document.getElementById('authError');
+
+            if (!username || !password) {
+                err.innerText = 'Bütün xanaları doldurun.';
+                err.classList.remove('hidden');
+                return;
+            }
+
+            // Simple login/register logic simulation
+            currentUser = {
+                username: username,
+                isOtpVerified: false,
+                preferredContact: 'WhatsApp',
+                phone: ''
+            };
+
+            localStorage.setItem('kirayevar_user', JSON.stringify(currentUser));
+            renderAuthUI();
+            closeModal('authModal');
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('kirayevar_user');
+            renderAuthUI();
+            closeModal('profileModal');
+        }
+
+        /* ----------------------------------------------------
+           OTP VERIFICATION LOGIC
+        ---------------------------------------------------- */
+        function sendOtpCode() {
+            const phone = document.getElementById('otpPhoneInput').value.trim();
+            if (!phone) {
+                alert('Zəhmət olmasa mobil nömrənizi daxil edin.');
+                return;
+            }
+            if (currentUser) {
+                currentUser.phone = '+994 ' + phone;
+            }
+            document.getElementById('otpStep1').classList.add('hidden');
+            document.getElementById('otpStep2').classList.remove('hidden');
+        }
+
+        function verifyOtpCode() {
+            const code = document.getElementById('otpCodeInput').value.trim();
+            if (code === '1234' || code.length === 4) {
+                if (currentUser) {
+                    currentUser.isOtpVerified = true;
+                    localStorage.setItem('kirayevar_user', JSON.stringify(currentUser));
+                }
+                closeModal('otpModal');
+                // Proceed to open Post Ad modal
+                openPostAdModal();
+            } else {
+                alert('Yanlış kod. Simulyasiya kodu: 1234');
+            }
+        }
+
+        /* ----------------------------------------------------
+           POST AD FLOW (ELAN YERLƏŞDİR)
+        ---------------------------------------------------- */
+        function startPostAdFlow() {
+            // 1. Check Login
+            if (!currentUser) {
+                openAuthModal('register');
+                return;
+            }
+            // 2. Check OTP
+            if (!currentUser.isOtpVerified) {
+                document.getElementById('otpStep1').classList.remove('hidden');
+                document.getElementById('otpStep2').classList.add('hidden');
+                document.getElementById('otpModal').classList.remove('hidden');
+                return;
+            }
+            // 3. Open Form
+            openPostAdModal();
+        }
+
+        function openPostAdModal() {
+            uploadedPhotos = []; // Reset photo tracker
+            renderPhotoPreviews();
+            document.getElementById('postAdForm').reset();
+            document.getElementById('postAdModal').classList.remove('hidden');
+        }
+
+        function triggerPhotoUpload() {
+            if (uploadedPhotos.length >= 5) {
+                alert('Maksimum 5 şəkil yükləyə bilərsiniz.');
+                return;
+            }
+            // Simulate adding a high-res placeholder image
+            const mockImages = [
+                'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80'
+            ];
+            const nextImg = mockImages[uploadedPhotos.length % mockImages.length];
+            uploadedPhotos.push(nextImg);
+            renderPhotoPreviews();
+        }
+
+        function renderPhotoPreviews() {
+            const container = document.getElementById('photoPreviews');
+            const countText = document.getElementById('photoCountText');
+            countText.innerText = `${uploadedPhotos.length} / 3`;
+
+            if (uploadedPhotos.length >= 3) {
+                countText.className = 'font-bold text-emerald-600';
+            } else {
+                countText.className = 'font-bold text-brand-600';
+            }
+
+            container.innerHTML = uploadedPhotos.map((img, idx) => `
+                <div class="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-300 dark:border-gray-600 flex-shrink-0">
+                    <img src="${img}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removePhoto(${idx})" class="absolute top-0 right-0 bg-red-600 text-white w-4 h-4 rounded-bl flex items-center justify-center text-[10px]">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removePhoto(idx) {
+            uploadedPhotos.splice(idx, 1);
+            renderPhotoPreviews();
+        }
+
+        function handlePostAdSubmit(e) {
+            e.preventDefault();
+            const err = document.getElementById('postAdError');
+
+            if (uploadedPhotos.length < 3) {
+                err.innerText = 'Elan yerləşdirmək üçün minimum 3 şəkil yükləməlisiniz!';
+                err.classList.remove('hidden');
+                return;
+            }
+
+            err.classList.add('hidden');
+
+            const title = document.getElementById('adTitle').value.trim();
+            const category = document.getElementById('adCategory').value;
+            const city = document.getElementById('adCity').value;
+            const price = parseFloat(document.getElementById('adPrice').value);
+            const duration = document.getElementById('adDuration').value;
+            const description = document.getElementById('adDescription').value.trim();
+            const contactChannel = document.getElementById('adContactChannel').value;
+            const isPublicNumber = document.querySelector('input[name="isPublicNumber"]:checked').value === 'true';
+            const boostPlan = document.querySelector('input[name="boostPlan"]:checked').value;
+
+            const newListing = {
+                id: Date.now(),
+                title,
+                category,
+                city,
+                price,
+                duration,
+                isVip: boostPlan !== 'free',
+                description,
+                phone: currentUser.phone || '+994 50 000 00 00',
+                isPublicNumber,
+                contactChannel,
+                seller: currentUser.username,
+                date: new Date().toISOString().split('T')[0],
+                images: [...uploadedPhotos]
+            };
+
+            allListings.unshift(newListing);
+            localStorage.setItem('kirayevar_listings', JSON.stringify(allListings));
+            
+            closeModal('postAdModal');
+            renderListings();
+            alert('Təbriklər! Elanınız uğurla yerləşdirildi.');
+        }
+
+        /* ----------------------------------------------------
+           FILTERING & RENDER ENGINE
+        ---------------------------------------------------- */
+        function getFilteredListings() {
+            const category = document.getElementById('filterCategory').value;
+            const city = document.getElementById('filterCity').value;
+            const duration = document.getElementById('filterDuration').value;
+            const minPrice = parseFloat(document.getElementById('filterMinPrice').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('filterMaxPrice').value) || Infinity;
+            const keyword = document.getElementById('filterKeyword').value.toLowerCase().trim();
+            const headerKeyword = document.getElementById('headerSearchInput').value.toLowerCase().trim();
+
+            const activeKeyword = keyword || headerKeyword;
+
+            return allListings.filter(item => {
+                if (category && item.category !== category) return false;
+                if (city && item.city !== city) return false;
+                if (duration && item.duration !== duration) return false;
+                if (item.price < minPrice || item.price > maxPrice) return false;
+                if (activeKeyword) {
+                    const matchTitle = item.title.toLowerCase().includes(activeKeyword);
+                    const matchDesc = item.description.toLowerCase().includes(activeKeyword);
+                    const matchSeller = item.seller.toLowerCase().includes(activeKeyword);
+                    if (!matchTitle && !matchDesc && !matchSeller) return false;
+                }
+                return true;
+            });
+        }
+
+        function renderListings() {
+            const filtered = getFilteredListings();
+            const sortBy = document.getElementById('sortBy').value;
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortBy === 'priceLow') return a.price - b.price;
+                if (sortBy === 'priceHigh') return b.price - a.price;
+                return b.id - a.id; // newest
+            });
+
+            const vipList = filtered.filter(item => item.isVip);
+            const standardList = filtered.filter(item => !item.isVip);
+
+            const vipGrid = document.getElementById('vipListingsGrid');
+            const standardGrid = document.getElementById('standardListingsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const vipSection = document.getElementById('vipSection');
+
+            // Render VIP
+            if (vipList.length === 0) {
+                vipSection.classList.add('hidden');
+            } else {
+                vipSection.classList.remove('hidden');
+                vipGrid.innerHTML = vipList.map(item => createListingCard(item, true)).join('');
+            }
+
+            // Render Standard
+            if (standardList.length === 0 && vipList.length === 0) {
+                standardGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                standardGrid.innerHTML = standardList.map(item => createListingCard(item, false)).join('');
+            }
+
+            document.getElementById('resultsCount').innerText = `(${filtered.length} elan tapıldı)`;
+        }
+
+        function createListingCard(item, isVip = false) {
+            const isFav = favorites.some(f => f.id === item.id);
+            const favClass = isFav ? 'text-red-500' : 'text-gray-400 dark:text-gray-500';
+
+            const cardWrapperClass = isVip 
+                ? 'vip-card-border shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20 transition-transform hover:-translate-y-1'
+                : 'bg-white dark:bg-darkbg-800 rounded-2xl border border-gray-100 dark:border-gray-700/80 shadow-sm hover:shadow-md transition-all hover:-translate-y-1';
+
+            return `
+                <div class="${cardWrapperClass} overflow-hidden group cursor-pointer flex flex-col justify-between" onclick="openAdDetailModal(${item.id})">
+                    <div class="bg-white dark:bg-darkbg-800 rounded-[14px] overflow-hidden flex flex-col h-full">
+                        
+                        <!-- Card Image Header -->
+                        <div class="relative h-48 w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
+                            <img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            
+                            <!-- Badges -->
+                            <div class="absolute top-3 left-3 flex flex-col gap-1">
+                                ${isVip ? `<span class="bg-gradient-to-r from-amber-500 to-red-500 text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">VIP</span>` : ''}
+                                <span class="bg-black/60 backdrop-blur-md text-white font-medium text-[11px] px-2 py-0.5 rounded-lg">
+                                    ${item.city}
+                                </span>
+                            </div>
+
+                            <!-- Favorite Button -->
+                            <button onclick="toggleFavorite(event, ${item.id})" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 dark:bg-darkbg-800/80 backdrop-blur-md flex items-center justify-center hover:scale-110 transition shadow">
+                                <i class="fa-solid fa-heart ${favClass}"></i>
+                            </button>
+
+                            <!-- Price Tag Overlay -->
+                            <div class="absolute bottom-3 left-3 bg-white/95 dark:bg-darkbg-800/95 backdrop-blur-md px-3 py-1 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex items-baseline gap-1">
+                                <span class="font-heading font-extrabold text-brand-600 dark:text-brand-400 text-lg">${item.price} AZN</span>
+                                <span class="text-[10px] text-gray-500 dark:text-gray-400 font-medium">/ ${item.duration}</span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-4 flex flex-col flex-grow justify-between space-y-3">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider">${formatCategoryName(item.category)}</span>
+                                <h3 class="font-heading font-bold text-gray-900 dark:text-white text-sm line-clamp-2 leading-snug group-hover:text-brand-600 transition">
+                                    ${item.title}
+                                </h3>
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span class="flex items-center gap-1">
+                                    <i class="fa-regular fa-user text-gray-400"></i> ${item.seller}
+                                </span>
+                                <span class="text-[10px]">${item.date}</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatCategoryName(cat) {
+            const map = {
+                'MənzilvəHəyətevi': 'Mənzil / Həyət evi',
+                'Avtomobil': 'Avtomobil',
+                'TikintivəAlətlər': 'Tikinti & Alətlər',
+                'Elektronika': 'Elektronika',
+                'GeyimvəTədbir': 'Geyim & Tədbir',
+                'Digər': 'Digər'
+            };
+            return map[cat] || cat;
+        }
+
+        function handleQuickSearch(e) {
+            renderListings();
+        }
+
+        function applyFilters() {
+            renderListings();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterCity').value = '';
+            document.getElementById('filterDuration').value = '';
+            document.getElementById('filterMinPrice').value = '';
+            document.getElementById('filterMaxPrice').value = '';
+            document.getElementById('filterKeyword').value = '';
+            document.getElementById('headerSearchInput').value = '';
+            renderListings();
+        }
+
+        /* ----------------------------------------------------
+           AD DETAIL MODAL & CONTACT LOGIC
+        ---------------------------------------------------- */
+        function openAdDetailModal(id) {
+            const item = allListings.find(l => l.id === id);
+            if (!item) return;
+
+            const isFav = favorites.some(f => f.id === item.id);
+            const favClass = isFav ? 'text-red-500' : 'text-gray-400';
+
+            // Phone number masking or display
+            let phoneDisplay = item.phone;
+            let actionButtons = '';
+
+            if (item.isPublicNumber) {
+                actionButtons = `
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href="tel:${item.phone}" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-center text-sm shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-phone"></i> Zəng Et (${item.phone})
+                        </a>
+                        <a href="https://wa.me/${item.phone.replace(/[^0-9]/g, '')}" target="_blank" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl text-center text-sm shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp ilə Yaz
+                        </a>
+                    </div>
+                `;
+            } else {
+                // Masked phone
+                const masked = item.phone.substring(0, 7) + ' *** ** **';
+                phoneDisplay = `<span class="text-gray-400 italic">${masked} (Gizli Nömrə)</span>`;
+
+                if (item.contactChannel === 'WhatsApp') {
+                    actionButtons = `
+                        <a href="https://wa.me/${item.phone.replace(/[^0-9]/g, '')}" target="_blank" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl text-center text-sm shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-xl"></i> Elan Sahibinə WhatsApp ilə Yaz
+                        </a>
+                    `;
+                } else {
+                    actionButtons = `
+                        <a href="tel:${item.phone}" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl text-center text-sm shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-phone"></i> Elan Sahibinə Zəng Et
+                        </a>
+                    `;
+                }
+            }
+
+            const container = document.getElementById('adDetailContent');
+            container.innerHTML = `
+                <!-- Gallery Slider/Grid -->
+                <div class="space-y-2">
+                    <div class="h-64 sm:h-80 w-full rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900">
+                        <img id="mainDetailImage" src="${item.images[0]}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto py-1">
+                        ${item.images.map((img, idx) => `
+                            <img src="${img}" onclick="setMainImage('${img}')" class="w-16 h-16 rounded-xl object-cover cursor-pointer border-2 border-transparent hover:border-brand-500 transition flex-shrink-0">
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Info Header -->
+                <div class="space-y-3">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">${formatCategoryName(item.category)} • ${item.city}</span>
+                            <h2 class="font-heading text-2xl font-bold text-gray-900 dark:text-white leading-snug">${item.title}</h2>
+                        </div>
+                        <button onclick="toggleFavorite(event, ${item.id})" class="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <i class="fa-solid fa-heart ${favClass} text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Price Banner -->
+                    <div class="bg-brand-50 dark:bg-brand-950/40 p-4 rounded-xl flex items-center justify-between border border-brand-100 dark:border-brand-900/50">
+                        <div>
+                            <span class="text-xs text-brand-800 dark:text-brand-300 font-medium">İcarə Qiyməti</span>
+                            <div class="font-heading text-3xl font-extrabold text-brand-700 dark:text-brand-400">${item.price} AZN <span class="text-sm font-normal text-gray-500">/ ${item.duration}</span></div>
+                        </div>
+                        <span class="text-xs font-semibold px-3 py-1 bg-white dark:bg-darkbg-800 rounded-lg shadow-sm text-gray-700 dark:text-gray-300">
+                            <i class="fa-regular fa-clock mr-1"></i> ${item.date}
+                        </span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Məlumat vən Şərtlər</h4>
+                        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">${item.description}</p>
+                    </div>
+
+                    <!-- Seller Card -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl space-y-3 border border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900 text-brand-600 flex items-center justify-center font-bold">
+                                    ${item.seller.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h5 class="text-sm font-bold text-gray-900 dark:text-white">${item.seller}</h5>
+                                    <span class="text-[11px] text-gray-500">Təsdiqlənmiş Elan Verən</span>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500">${phoneDisplay}</div>
+                        </div>
+
+                        ${actionButtons}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('adDetailModal').classList.remove('hidden');
+        }
+
+        function setMainImage(src) {
+            document.getElementById('mainDetailImage').src = src;
+        }
+
+        /* ----------------------------------------------------
+           FAVORITES SYSTEM
+        ---------------------------------------------------- */
+        function toggleFavorite(e, id) {
+            e.stopPropagation();
+            const index = favorites.findIndex(f => f.id === id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                const item = allListings.find(l => l.id === id);
+                if (item) favorites.push(item);
+            }
+            localStorage.setItem('kirayevar_favs', JSON.stringify(favorites));
+            updateFavCount();
+            renderListings();
+            renderFavoritesList();
+        }
+
+        function updateFavCount() {
+            document.getElementById('favCountBadge').innerText = favorites.length;
+        }
+
+        function openFavoritesModal() {
+            renderFavoritesList();
+            document.getElementById('favoritesModal').classList.remove('hidden');
+        }
+
+        function renderFavoritesList() {
+            const container = document.getElementById('favoritesList');
+            if (favorites.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400 text-sm">
+                        Sevimlilər siyahınız boşdur.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = favorites.map(item => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="closeModal('favoritesModal'); openAdDetailModal(${item.id})">
+                        <img src="${item.images[0]}" class="w-12 h-12 rounded-lg object-cover">
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-900 dark:text-white line-clamp-1">${item.title}</h4>
+                            <span class="text-xs text-brand-600 font-bold">${item.price} AZN / ${item.duration}</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleFavorite(event, ${item.id})" class="text-red-500 hover:text-red-700 p-2 text-sm">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        /* ----------------------------------------------------
+           PROFILE MODAL & SETTINGS
+        ---------------------------------------------------- */
+        function openProfileModal() {
+            if (!currentUser) return;
+            document.getElementById('profileUsernameDisplay').innerText = currentUser.username;
+            
+            const badge = document.getElementById('otpStatusBadge');
+            if (currentUser.isOtpVerified) {
+                badge.innerText = 'Nömrə Təsdiqlənib (' + currentUser.phone + ')';
+                badge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300';
+            } else {
+                badge.innerText = 'Nömrə Təsdiqlənməyib';
+                badge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300';
+            }
+
+            document.getElementById('profilePreferredContact').value = currentUser.preferredContact || 'WhatsApp';
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function updateProfileSettings() {
+            if (currentUser) {
+                currentUser.preferredContact = document.getElementById('profilePreferredContact').value;
+                localStorage.setItem('kirayevar_user', JSON.stringify(currentUser));
+            }
+        }
+
+        /* ----------------------------------------------------
+           HELPERS
+        ---------------------------------------------------- */
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
